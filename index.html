@@ -3,1046 +3,834 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Better Future(ABF)</title>
-    <link rel="icon" type="image/svg+xml" href="/logo.svg">
+    <title>ABF | 照亮前方的火炬</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com ">
+    <link rel="preconnect" href="https://fonts.gstatic.com " crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400 ;700&family=JetBrains+Mono:wght@300;500&family=Noto+Serif+SC:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        /* 全局变量与重置 */
         :root {
-            --accent-primary: #9051e0; /* 真嗣紫色 - 主色调 */
-            --accent-secondary: #00b378; /* 荧光绿 - 强调色 */
-            --accent-tertiary: #ff6b35; /* 明日香橘红 - 辅助色 */
-            --bg-light: #ffffff; /* 白色背景 */
-            --bg-card: #fafafa; /* 卡片背景 */
-            --text-primary: #333333; /* 主文本色 */
-            --text-secondary: #666666; /* 次要文本色 */
-            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
-            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --bg-deep: #020204;
+            --bg-card: rgba(10, 15, 20, 0.6);
+            --line-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00f3ff;
+            --accent-gold: #d4af37;
+            --accent-fire: #ff4500;
+            --accent-ember: #ff8c00;
+            --accent-purple: #bd00ff;
+            --text-main: #eeeeee;
+            --text-muted: #777777;
+            --font-display: 'Cinzel', serif;
+            --font-code: 'JetBrains Mono', monospace;
+            --font-body: 'Noto Serif SC', serif;
+            --ease-math: cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        [data-theme="neon"] {
-            --accent-primary: #00b378; /* 荧光绿 */
-            --accent-secondary: #00d8ff; /* 凌波丽青色 */
-            --accent-tertiary: #ff6b35; /* 明日香橘红 */
-            --bg-light: #000000;
-            --bg-card: #0a0a0a;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.5);
-            --shadow-medium: 0 8px 24px rgba(0, 216, 255, 0.3);
-        }
-
-        [data-theme="sunset"] {
-            --accent-primary: #ff6b35; /* 明日香橘红 */
-            --accent-secondary: #ffd161; /* 明日香黄色 */
-            --bg-light: #fff8f0;
-            --bg-card: #fffbf5;
-            --text-primary: #332923;
-            --text-secondary: #8c7b6e;
-        }
-
-        [data-theme="rei"] {
-            --accent-primary: #7eb6cc; /* 凌波丽雾霾蓝 */
-            --accent-secondary: #f8e1e7; /* 凌波丽淡粉白 */
-            --bg-light: #f0f8ff;
-            --bg-card: #e6f2f8;
-            --text-primary: #444444;
-            --text-secondary: #999999;
-            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-
-        /* 基础样式重置 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
 
         body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-primary);
-            line-height: 1.5;
-            transition: background-color 0.3s ease, color 0.3s ease;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            line-height: 1.8;
         }
 
-        a {
-            text-decoration: none;
-            color: var(--accent-primary);
-            transition: color 0.3s ease;
+        #math-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; pointer-events: none;
         }
 
-        a:hover {
-            color: var(--accent-secondary);
+        /* 迷雾画布 (移除背景色，由JS控制) */
+        #fog-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9990;
+            mix-blend-mode: normal; /* 改为正常模式，由JS控制绘制 */
         }
 
-        /* 组件样式 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+        /* 霓虹火焰光标 - 增强版 */
+        #cursor-core {
+            position: fixed;
+            top: 0; left: 0;
+            width: 30px; height: 30px; /* 增大核心 */
+            background: radial-gradient(circle, #fff 0%, var(--accent-ember) 40%, var(--accent-fire) 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: 
+                0 0 15px #fff, 
+                0 0 30px var(--accent-ember), 
+                0 0 60px var(--accent-fire),
+                0 0 100px var(--accent-gold);
+            animation: pulse 1.2s ease-in-out infinite;
         }
 
-        /* 导航栏 */
-        .header {
-            background-color: var(--bg-card);
-            box-shadow: var(--shadow-light);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+        .fire-particle {
+            position: fixed;
+            pointer-events: none;
+            background: radial-gradient(circle, var(--accent-ember), transparent);
+            border-radius: 50%;
+            animation: floatUp 1s linear forwards;
+            z-index: 9998;
+            opacity: 0.8;
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        @keyframes floatUp {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
+            100% { transform: translate(-50%, -150%) scale(0); opacity: 0; }
         }
 
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
+        .hud-nav {
+            position: fixed; top: 0; left: 0; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 40px;
+            z-index: 1000;
+            border-bottom: 1px solid var(--line-color);
+            backdrop-filter: blur(10px);
+            background: rgba(2, 2, 4, 0.8);
         }
 
-        .logo-text {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--accent-primary);
+        .brand {
+            font-family: var(--font-display);
+            font-size: 24px;
+            letter-spacing: 2px;
+            color: var(--text-main);
+            position: relative;
+        }
+        .brand::after {
+            content: ''; position: absolute; bottom: -5px; left: 0; width: 30%; height: 2px;
+            background: var(--accent-gold);
         }
 
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 24px;
+        .nav-menu { display: flex; gap: 40px; }
+        
+        .nav-btn {
+            font-family: var(--font-code);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            cursor: none;
+            position: relative;
+            padding: 5px 0;
+            transition: color 0.3s;
         }
 
-        .nav-item {
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s ease, color 0.3s ease;
+        .nav-btn::before {
+            content: '['; margin-right: 5px; opacity: 0; transform: translateX(10px); transition: all 0.3s var(--ease-math); color: var(--accent-cyan);
+        }
+        .nav-btn::after {
+            content: ']'; margin-left: 5px; opacity: 0; transform: translateX(-10px); transition: all 0.3s var(--ease-math); color: var(--accent-cyan);
         }
 
-        .nav-item:hover, .nav-item.active {
-            background-color: rgba(144, 81, 224, 0.1);
-            color: var(--accent-primary);
+        .nav-btn:hover, .nav-btn.active { color: var(--accent-cyan); }
+        .nav-btn:hover::before, .nav-btn.active::before { opacity: 1; transform: translateX(0); }
+        .nav-btn:hover::after, .nav-btn.active::after { opacity: 1; transform: translateX(0); }
+
+        .main-wrapper {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            padding-top: 100px;
+            padding-bottom: 100px;
         }
 
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .theme-selector, .lang-selector {
-            padding: 6px 12px;
-            border: 1px solid rgba(144, 81, 224, 0.3);
-            border-radius: 6px;
-            background-color: transparent;
-            color: var(--text-primary);
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-        .theme-selector:hover, .lang-selector:hover {
-            border-color: var(--accent-primary);
-        }
-
-        /* 主内容区 */
-        .main-content {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 32px;
-            max-width: 1200px;
-            margin: 32px auto;
-            padding: 0 20px;
-        }
-
-        /* 侧边栏 */
-        .sidebar {
-            background-color: var(--bg-card);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: var(--shadow-light);
-        }
-
-        .sidebar-section {
-            margin-bottom: 24px;
-        }
-
-        .sidebar-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--accent-primary);
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .sidebar-item {
-            display: block;
-            padding: 10px 12px;
-            margin: 6px 0;
-            border-radius: 6px;
-            background-color: rgba(144, 81, 224, 0.05);
-            color: var(--accent-primary);
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-item:hover {
-            background-color: rgba(144, 81, 224, 0.1);
-            transform: translateX(4px);
-            color: var(--accent-secondary);
-        }
-
-        .sidebar-item.coming-soon {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /* 内容区 */
-        .content {
-            background-color: var(--bg-card);
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: var(--shadow-light);
-        }
-
-        .section {
+        section {
             display: none;
+            padding: 40px 10%;
+            animation: fadeScale 0.8s var(--ease-math);
+        }
+        section.active { display: block; }
+
+        @keyframes fadeScale {
+            from { opacity: 0; transform: scale(0.98) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
-        .section.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
+        h1, h2, h3 { font-family: var(--font-display); font-weight: 400; }
+        
+        .section-header {
+            margin-bottom: 60px;
+            border-left: 2px solid var(--accent-gold);
+            padding-left: 20px;
+        }
+        .section-header h2 { font-size: 2.5rem; color: var(--text-main); }
+        .section-header p { font-family: var(--font-code); color: var(--text-muted); margin-top: 10px; font-size: 0.9rem; }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .math-card {
+            background: var(--bg-card);
+            border: 1px solid var(--line-color);
+            padding: 25px;
+            position: relative;
+            transition: all 0.4s var(--ease-math);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
-        /* 英雄区 */
-        .hero {
+        .math-card::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            transition: left 0.5s;
+        }
+        .math-card:hover::before { left: 100%; }
+        
+        .math-card:hover {
+            border-color: rgba(0, 243, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px -10px rgba(0, 243, 255, 0.1);
+        }
+
+        .card-tag {
+            font-family: var(--font-code);
+            font-size: 10px;
+            color: var(--accent-gold);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            padding: 2px 8px;
+            width: fit-content;
+            margin-bottom: 15px;
+        }
+
+        .card-title { font-size: 1.2rem; margin-bottom: 10px; color: #fff; }
+        .card-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; flex-grow: 1; }
+
+        .card-link {
+            font-family: var(--font-code);
+            font-size: 0.8rem;
+            color: var(--accent-cyan);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .card-link:hover { text-decoration: underline; }
+
+        .philosophy-hero {
             text-align: center;
-            margin-bottom: 48px;
-        }
-
-        .hero h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--accent-primary);
-            margin-bottom: 16px;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: var(--text-secondary);
-            max-width: 600px;
+            padding: 100px 20px;
+            max-width: 800px;
             margin: 0 auto;
         }
+        .philosophy-hero h1 {
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .philosophy-hero h1 span {
+            color: var(--accent-fire);
+            background: none;
+            -webkit-text-fill-color: var(--accent-fire);
+            text-shadow: 0 0 20px var(--accent-fire);
+        }
+        .scroll-text {
+            height: 300px; overflow-y: auto;
+            text-align: left; padding: 20px;
+            border: 1px solid var(--line-color);
+            background: rgba(0,0,0,0.3);
+            font-family: var(--font-body);
+            line-height: 1.8;
+            color: #ccc;
+        }
+        .scroll-text p { margin-bottom: 15px; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--accent-gold); }
 
-        /* 特性卡片 */
-        .features {
+        .filter-bar {
+            display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 30px;
+        }
+        .filter-btn {
+            background: transparent; border: 1px solid var(--line-color);
+            color: var(--text-muted); padding: 8px 16px;
+            font-family: var(--font-code); font-size: 0.9rem; cursor: none;
+            transition: all 0.3s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            border-color: var(--accent-cyan); color: var(--accent-cyan);
+            background: rgba(0, 243, 255, 0.05);
+        }
+
+        .stats-dashboard {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 24px;
-            margin: 48px 0;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 50px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--line-color);
+        }
+        .stat-item { text-align: center; }
+        .stat-num { 
+            font-family: var(--font-code); 
+            font-size: 2rem; 
+            color: var(--accent-cyan); 
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+        .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .region-group {
+            margin-top: 40px;
+            border-top: 1px solid var(--line-color);
+            padding-top: 40px;
+        }
+        .region-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 10px;
         }
 
-        .feature-card {
-            background-color: rgba(144, 81, 224, 0.05);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: var(--shadow-light);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .feature-card h3 {
-            font-size: 18px;
-            color: var(--accent-primary);
-            margin-bottom: 12px;
-        }
-
-        /* 下载按钮 */
         .download-btn {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 500;
-            margin: 10px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: none;
-            cursor: pointer;
+            display: block;
+            width: 100%; text-align: center; padding: 12px;
+            background: linear-gradient(90deg, rgba(0,243,255,0.1), transparent);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            font-family: var(--font-code); font-size: 0.9rem;
+            margin-top: 15px;
+            transition: all 0.3s;
+            cursor: none;
         }
-
         .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-cyan);
         }
 
-        .download-section {
-            background-color: rgba(144, 81, 224, 0.05);
-            border-radius: 12px;
-            padding: 24px;
-            margin: 48px 0;
-            text-align: center;
+        .contact-form {
+            background: var(--bg-card);
+            border: 1px solid var(--line-color);
+            padding: 30px;
+            border-radius: 8px;
+            margin-top: 40px;
         }
-
-        /* 表单样式 */
-        .form-group {
+        .contact-form h3 {
+            font-family: var(--font-display);
+            color: var(--accent-gold);
             margin-bottom: 20px;
         }
-
+        .form-group { margin-bottom: 20px; }
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            color: var(--accent-primary);
+            font-family: var(--font-code);
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
         }
-
         .form-control {
             width: 100%;
             padding: 12px;
-            border: 1px solid rgba(144, 81, 224, 0.3);
-            border-radius: 8px;
-            background-color: var(--bg-card);
-            color: var(--text-primary);
-            transition: border-color 0.3s ease;
+            border: 1px solid var(--line-color);
+            background: rgba(0,0,0,0.3);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            border-radius: 4px;
+            transition: border-color 0.3s;
         }
-
         .form-control:focus {
             outline: none;
-            border-color: var(--accent-primary);
+            border-color: var(--accent-cyan);
         }
-
-        textarea.form-control {
-            min-height: 120px;
-            resize: vertical;
-        }
-
+        textarea.form-control { min-height: 120px; resize: vertical; }
         .submit-btn {
             background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
             border: none;
             padding: 12px 24px;
             border-radius: 8px;
+            font-family: var(--font-code);
             font-weight: 500;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: none;
+            transition: all 0.3s;
         }
-
         .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: 0 0 15px var(--accent-cyan);
         }
 
-        /* 资料详情卡片 */
-        .material-intro {
-            background-color: var(--bg-card);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid rgba(144, 81, 224, 0.1);
-            margin: 32px 0;
-        }
-
-        .material-intro h3 {
-            font-size: 20px;
-            color: var(--accent-primary);
-            margin-bottom: 16px;
-        }
-
-        .material-meta {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-
-        .meta-item {
-            font-size: 14px;
-        }
-
-        .meta-item strong {
-            display: block;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-
-        /* 问答样式 */
-        .qa-item {
-            background-color: var(--bg-card);
-            border-left: 3px solid var(--accent-primary);
-            padding: 16px;
-            margin: 16px 0;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .qa-question {
-            font-weight: 600;
-            color: var(--accent-primary);
-            margin-bottom: 8px;
-        }
-
-        /* 通知提示 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: var(--accent-secondary);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            box-shadow: var(--shadow-medium);
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* 弹窗样式 */
-        .modal {
-            display: none; /* 默认隐藏 */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background-color: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: var(--shadow-medium);
-            width: 80%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            animation: modalFadeIn 0.3s ease;
-        }
-
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(144, 81, 224, 0.1);
-        }
-
-        .close-btn {
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: color 0.3s ease;
-        }
-
-        .close-btn:hover {
-            color: var(--text-primary);
-        }
-
-        .modal-body {
-            padding: 20px;
+        /* 页脚 - 增强间距 */
+        footer {
             text-align: center;
+            padding: 60px 20px 40px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            background: #020202;
+            margin-top: 80px; /* 增加顶部间距 */
         }
 
-        .modal-body p {
-            font-size: 18px;
-            color: var(--accent-primary);
-            margin-bottom: 20px;
+        .footer-quote {
+            font-family: var(--font-code);
+            color: var(--accent-cyan);
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            font-weight: 500;
+            text-shadow: 0 0 15px rgba(0, 243, 255, 0.5);
         }
 
-        /* 理念样式 */
-        #philosophy {
-            margin: 50px 0;
-            padding: 30px;
-            background-color: rgba(144, 81, 224, 0.05);
-            border-radius: 12px;
-            border-left: 4px solid var(--accent-primary);
-        }
-        #philosophy h3 {
-            font-size: 22px;
-            color: var(--accent-primary);
-            margin-bottom: 20px;
-        }
-        #philosophy p {
-            text-align: center;
-            margin-bottom: 20px;
-            line-height: 1.7;
-        }
-        .philosophy-quote {
-            font-style: italic;
-            padding: 10px;
-            background-color: rgba(144, 81, 224, 0.1);
-            border-radius: 8px;
-            margin: 15px 0;
+        .footer-divider {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-gold), transparent);
+            margin: 25px auto;
         }
 
-        /* 响应式设计 */
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-menu {
-                display: none;
-            }
+            .nav-menu { gap: 20px; }
+            .nav-btn { font-size: 10px; }
+            section { padding: 30px 5%; }
+            .philosophy-hero h1 { font-size: 3rem; }
+            #cursor-core { width: 25px; height: 25px; }
         }
     </style>
 </head>
-<body data-theme="default">
-    <!-- 导航栏 -->
-    <header class="header">
-        <div class="nav-container">
-            <div class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32">
-                    <rect width="100" height="100" fill="none"/>
-                    <text y="70" font-size="60" font-family="Arial" fill="var(--accent-primary)">✓</text>
-                </svg>
-                <div class="logo-text">A Better Future</div>
-            </div>
-  	     <ul class="nav-menu">
-    	 	 <li class="nav-item active" data-section="home">项目介绍</li>
-   		 <li class="nav-item" data-section="notes">笔记资料</li>
-   		 <li class="nav-item" data-section="qa">Q&A</li>
-    		 <li class="nav-item" data-section="join">加入我们</li>
-	     </ul>
-            <div class="nav-controls">
-                <select class="theme-selector" id="themeSelector">
-                    <option value="default">默认</option>
-                    <option value="neon">真嗣</option>
-                    <option value="sunset">明日香</option>
-                    <option value="rei">凌波丽</option>
-                </select>
-            </div>
+<body>
+
+    <canvas id="math-canvas"></canvas>
+    <canvas id="fog-canvas"></canvas>
+    <div id="cursor-core"></div>
+
+    <nav class="hud-nav">
+        <div class="brand">ABF <span style="font-size:12px; opacity:0.5;">/ PROJECT</span></div>
+        <div class="nav-menu">
+            <div class="nav-btn active" onclick="switchTab('home')">项目理念</div>
+            <div class="nav-btn" onclick="switchTab('bioinfo')">生信工具库</div>
+            <div class="nav-btn" onclick="switchTab('courses')">课程资料</div>
+            <div class="nav-btn" onclick="switchTab('global')">全球视野</div>
+            <div class="nav-btn" onclick="switchTab('ngo')">公益与共创</div>
         </div>
-    </header>
-    <!-- 主内容区 -->
-    <div class="main-content">
-        <!-- 侧边栏 -->
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-title">
-                    <img src="/logo.svg" width="32" height="32" alt="Logo" class="logo-icon">
-                    <span>课程资料</span>
+    </nav>
+
+    <div class="main-wrapper">
+
+        <section id="home" class="active">
+            <div class="philosophy-hero">
+                <h1>A BETTER <span>FUTURE</span></h1>
+                <p style="font-family: var(--font-code);">// DECODING THE PATH FORWARD</p>
+                <div class="scroll-text">
+                    <p><strong>[Source: ABF Philosophy]</strong></p><br>
+                    <p>为什么要创建ABF项目？</p><p>或许我们首先该从一个简单而残酷的事实讲起：</p><p>学历，从来就不是知识的证明，它不过是社会管理的一道筛子。</p><p>在这道筛子里，每一个人，自从牙牙学语之时起，便被推入了这条轨迹：</p><p>学前班、幼儿园、小学、初中、高中、大学、研究生、博士……</p><p>一层层叠加，像一道道闭合的闸门，层层筛选、分流、淘汰，最终再晋升。</p><br>
+                    <p>人们常说"知识改变命运"。</p><p>可当你真的站在教室里，埋头刷着一套又一套模拟卷时，</p><p>有没有想过：我们所学的，真的是知识，还是仅仅是一种"解题的姿势"？</p><br>
+                    <p>你可能会发现，播放量最高的课程，</p><p>总是那些带着"七天速成""保底80分""压线提分"的标签。</p><p>这些课程，无疑迎合了当代年轻人对"确定性"的渴望——</p><p>可控、可预期、可重复，最好能在一夜之间翻盘。</p><br>
+                    <p>然而，若问：真有如此捷径吗？</p><p>答案几乎残酷：最快的路，往往是最慢的路。</p><p>真正能打入你骨髓的东西，是你一个人在孤灯下，一页一页地啃出来的，</p><p>没有旁听、没有速成，只有你和自己一次次的较劲。</p><br>
+                    <p>学历，仿佛是一枚光鲜亮丽的徽章，戴在每个年轻人的胸前；</p><p>绩点，仿佛一把无形的尺子，悬挂在每个人的头顶。</p><p>为了那一分两分，我们心力交瘁，担心某门课程的九十分只能得八十八，</p><p>熬夜补交实验报告，只为确保排名不下滑。</p><br>
+                    <p>因为你深知：这一分之差，可能是奖学金的门票，可能是保研的希望，</p><p>可能是出国交换的机会，也可能是通向更大舞台的唯一船票。</p><p>为了那一分，我们不敢分心，不敢社交，不敢恋爱，只敢埋头苦读，</p><p>害怕每一秒的浪费。你以为你选择了最稳妥的路，实际上，你只是被这条单行道逼得没有退路。</p><br>
+                    <p>在这条单行道上，我们看到了荒诞的一幕：</p><p>我们花着学费，进入课堂，却用手机和电脑把自己封闭。</p><p>我们拼命赶DDL，却懒得整理宿舍，懒得自我管理，连吃饭洗衣都要依赖外卖和快递。</p><p>我们拥有空前丰富的信息渠道，却将它们浪费在无休止的短视频、</p><p>碎片化的观点、极化的舆论中。</p><br>
+                    <p>大学，不再是沉淀心智、塑造人格、练习自我负责的净土，</p><p>而变成了一座巨大的剧场。一些老师在台上表演单口相声，</p><p>一些学生在台下签到点头，各自演绎各自的戏。</p><p>大家心照不宣，这场戏演给绩点看，演给简历看，演给父母看，</p><p>却没有一个观众，真正看见你自己。</p><br>
+                    <p>有时候，我们寄希望于"教育改革"四个字，但这真的有那么简单吗？</p><p>当绩点决定一切时，老师也无能为力。</p><p>当综测奖项成了筛选工具，学生只会去拼那些"好看"的比赛，</p><p>哪怕这些比赛和他们的未来方向毫无关系。</p><br>
+                    <p>教育体制想要证明一个学生的优秀，唯一能量化的指标，便是成绩。</p><p>我们常批评体制冷漠无情，但换个角度想一想：</p><p>如果你是用人者、是奖学金发放者，你又凭什么相信一个连绩点都守不住的人，</p><p>能在其他地方证明自己的价值？</p><br>
+                    <p>这是一个悖论：体制信任分数，学生追逐分数，</p><p>而分数，消耗了学生的多样性与想象力。</p><p>然而，这一切并非孤立存在。</p><p>如今，信息膨胀的时代来临，互联网让我们随时可以获得知识，</p><p>却也把我们困在算法编织的茧房中。</p><br>
+                    <p>一旦你接触到一个极端观念、一个耸动言论，</p><p>它便悄无声息地植入大脑，滋生蔓延。</p><p>在几十亿人口的海洋中，这种"遗传漂变"逐渐成为洪流。</p><p>我们以为自由选择，实则只是被输入、被塑造、被影响。</p><br>
+                    <p>这并非危言耸听，也不是失败的宣告。</p><p>恰恰相反，面对这种局面，我们唯一要问自己的问题是：</p><p>在这场从筛选到筛选的奔跑里，真正能带着你穿越门槛、走向远方的是什么？</p><br>
+                    <p>它不会是单一的分数，不会是速成的题库，不会是老师的PPT；</p><p>它只能是你内心的动力，你的自我更新能力，</p><p>你对问题的好奇心与解决能力。</p><p>这正是任何筛子无法筛掉的核心，是任何赛道之外，你唯一能带走的武器。</p><br>
+                    <p>因此，或许有些辛苦也无妨，但那必须是有价值的辛苦。</p><p>即使绩点依旧是门槛，也不应让它成为牢笼。</p><p>守住最低的分数线，把剩下的时间与精力，</p><p>投入到那些没人要求你做的事：</p><br>
+                    <p>读一本没人催促的书，做一个无人要求的项目，</p><p>与一个不在同一圈层的人，进行一次深刻的对话。</p><p>别怕走得慢，怕的是你根本没有开始走自己的路。</p><br>
+                    <p>学历是门槛，门槛之后，才是广阔的旷野。</p><p>因此，我们想帮助你，不仅仅是提供更丰富的信息，</p><p>而是传递一种观念——最快的路，往往是最慢的路。</p><br>
+                    <p>我们做的，不是为你铺设一条捷径，</p><p>而是将我们在这条路上的脚步展示给你。</p><p>至于你将走向何方，你来决定。</p><br>
+                    <p>愿你有勇气越过这道筛子，</p><p>更愿你有能力，在无人监督的远方，</p><p>自己为自己点亮前行的灯。</p><br>
+                    <p style="text-align: center; color: var(--accent-gold);">ABF——给你一个更好的未来。</p>
                 </div>
-                <a href="https://www.jianguoyun.com/p/Dc_9j2AQ8ITEDRiGiIkGIAA" class="sidebar-item" target="_blank">分子生物学</a>
-                <a href="https://www.jianguoyun.com/p/DdUhX34Q8ITEDRinnIkGIAA" class="sidebar-item" target="_blank">进化生物学</a>
-                <a href="https://www.jianguoyun.com/p/DW4a85YQ8ITEDRiknIkGIAA" class="sidebar-item" target="_blank">生态学(思维导图)</a>
-                <a href="https://www.jianguoyun.com/p/DeE-K6IQ8ITEDRjj44kGIAA" class="sidebar-item" target="_blank">生态学</a>
-                <a href="https://www.jianguoyun.com/p/DULGb5wQ8ITEDRij44kGIAA" class="sidebar-item" target="_blank">保护生物学</a>
-                <a href="https://www.jianguoyun.com/p/DZrn3ecQ8ITEDRj15IkGIAA" class="sidebar-item" target="_blank">生物统计学</a>
-		<a href="https://www.jianguoyun.com/p/DXQ-OOoQ8ITEDRin-4oGIAA" class="sidebar-item" target="_blank">遗传学笔记 </a>
-		<a href="https://www.jianguoyun.com/p/DYjyChEQ8ITEDRip-4oGIAA" class="sidebar-item" target="_blank">动物生物学名词解释 </a>
-                <a href="#" class="sidebar-item coming-soon">生物化学</a>
-                <a href="#" class="sidebar-item coming-soon">细胞生物学</a>
-                <a href="#" class="sidebar-item coming-soon">植物生物学</a>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                    </svg>
-                    <span>快速下载</span>
-                </div>
-                <a href="https://www.jianguoyun.com/p/Dc_9j2AQ8ITEDRiGiIkGIAA" class="sidebar-item" target="_blank">坚果云链接</a>
-                <a href="#" class="sidebar-item coming-soon">蓝奏云备份</a>
-                <a href="#" class="sidebar-item coming-soon">GitHub仓库</a>
+            <div class="contact-form">
+                <h3>匿名投稿与联系</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">本项目不接受直接提交，欢迎匿名投稿至邮箱。请发送资料或更新建议到：</p>
+                <a href="mailto:cyploveheme@gmail.com" style="color: var(--accent-gold); font-family: var(--font-code); font-size: 1.1rem;">✉ cyploveheme@gmail.com</a>
             </div>
-            <div class="sidebar-section">
-                <div class="sidebar-title">
-                    <img src="/logo.svg" width="32" height="32" alt="Logo" class="logo-icon">
-                    <span>联系方式</span>
-                </div>
-                <a href="mailto:cyploveheme@gmail.com" class="sidebar-item">匿名邮箱</a>
+        </section>
+
+        <section id="bioinfo">
+            <div class="section-header">
+                <h2>BIOINFORMATICS TOOLKIT</h2>
+                <p>基于社区整理的完整工具链</p>
             </div>
-        </aside>
-        <!-- 内容区 -->
-        <main class="content">
-            <!-- 项目介绍 -->
-            <section id="home" class="section active">
-                <div class="hero">
-                    <h1>A Better Future ✨</h1>
-                    <p>一个面向生物科学专业学生的匿名开源资料项目</p>
-                    <p>打破信息垄断，追求共享精神，构建更公平的学习环境</p>
-                </div>
-                <div class="features">
-                    <div class="feature-card">
-                        <h3>🌱 项目简介</h3>
-                        <p>A Better Future 是一个由匿名志愿者发起的学习资源整理计划。我们致力于收集、整理、分享生物科学课程资料，帮助更多同学突破信息壁垒。</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>✅ 透明管理</h3>
-                        <p>所有资料透明、版本可追踪，每门课程一个PDF版本，定期更新，支持匿名提问、答疑解惑。</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>🔄 多重下载</h3>
-                        <p>可用 GitHub 或国内云盘下载，无需翻墙，所有云盘链接集中整理便于访问。</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3>📁 结构清晰</h3>
-                        <p>每门课程都有独立目录，提供多版本 PDF 下载，包含版本说明与更新日志。</p>
-                    </div>
-                </div>
-                <div id="philosophy">
-                    <h3>🎬 项目理念</h3>
-                    <!-- 以下为理念区的全部段落，纯中文 -->
-                    <p>
-                        为什么要创建ABF项目？<br>
-                        或许我们首先该从一个简单而残酷的事实讲起：<br>
-                        学历，从来就不是知识的证明，<br>
-                        它不过是社会管理的一道筛子。<br>
-                        在这道筛子里，每一个人，<br>
-                        自从牙牙学语之时起，<br>
-                        便被推入了这条轨迹：<br>
-                        学前班、幼儿园、小学、初中、高中、大学、研究生、博士……<br>
-                        一层层叠加，像一道道闭合的闸门，<br>
-                        层层筛选、分流、淘汰，最终再晋升。<br>
-                        人们常说“知识改变命运”。<br>
-                        可当你真的站在教室里，<br>
-                        埋头刷着一套又一套模拟卷时，<br>
-                        有没有想过：我们所学的，<br>
-                        真的是知识，<br>
-                        还是仅仅是一种“解题的姿势”？ <br>
-                        你可能会发现， <br>
-                        播放量最高的课程， <br>
-                        总是那些带着“七天速成” <br>
-                        “保底80分” <br>
-                        “压线提分”的标签。 <br>
-                    </p>
-                    <p data-translate="philosophy-cont1">
-                        这些课程，<br>
-                        无疑迎合了当代年轻人对“确定性”的渴望——<br>
-                        可控、可预期、可重复，<br>
-                        最好能在一夜之间翻盘。<br>
-                        然而，若问：真有如此捷径吗？<br>
-                        答案几乎残酷：<br>
-                        最快的路，往往是最慢的路。<br>
-                        真正能打入你骨髓的东西，<br>
-                        是你一个人在孤灯下，<br>
-                        一页一页地啃出来的，<br>
-                        没有旁听、没有速成，<br>
-                        只有你和自己一次次的较劲。
-                        学历，仿佛是一枚光鲜亮丽的徽章，<br>
-                        戴在每个年轻人的胸前；<br>
-                        绩点，仿佛一把无形的尺子，<br>
-                        悬挂在每个人的头顶。<br>
-                    </p>
-                    <p data-translate="philosophy-cont2">
-                        为了那一分两分，我们心力交瘁，<br>
-                        担心某门课程的九十分只能得八十八，<br>
-                        熬夜补交实验报告，只为确保排名不下滑。<br>
-                        因为你深知：这一分之差，<br>
-                        可能是奖学金的门票，<br>
-                        可能是保研的希望，<br>
-                        可能是出国交换的机会，<br>
-                        也可能是通向更大舞台的唯一船票。<br>
-                        为了那一分，我们不敢分心，不敢社交，不敢恋爱，<br>
-                        只敢埋头苦读，害怕每一秒的浪费。<br>
-                        你以为你选择了最稳妥的路，<br>
-                        实际上，你只是被这条单行道逼得没有退路。
-                        在这条单行道上，我们看到了荒诞的一幕：<br>
-                        我们花着学费，进入课堂，<br>
-                        却用手机和电脑把自己封闭。<br>
-                        我们拼命赶DDL，<br>
-                        却懒得整理宿舍，懒得自我管理，<br>
-                        连吃饭洗衣都要依赖外卖和快递。<br>
-                        我们拥有空前丰富的信息渠道，<br>
-                        却将它们浪费在无休止的短视频、<br>
-                        碎片化的观点、极化的舆论中。<br>
-                        大学，不再是沉淀心智、塑造人格、<br>
-                        练习自我负责的净土，<br>
-                        而变成了一座巨大的剧场。<br>
-                        一些老师在台上表演单口相声，<br>
-                        一些学生在台下签到点头，<br>
-                        各自演绎各自的戏。<br>
-                        大家心照不宣，<br>
-                        这场戏演给绩点看，演给简历看，演给父母看，<br>
-                        却没有一个观众，真正看见你自己。
-                    </p>
-                    <p data-translate="philosophy-cont4">
-                        有时候，我们寄希望于“教育改革”四个字，<br>
-                        但这真的有那么简单吗？<br>
-                        当绩点决定一切时，老师也无能为力。<br>
-                        当综测奖项成了筛选工具，<br>
-                        学生只会去拼那些“好看”的比赛，<br>
-                        哪怕这些比赛和他们的未来方向毫无关系。<br>
-                        教育体制想要证明一个学生的优秀，<br>
-                        唯一能量化的指标，便是成绩。<br>
-                        我们常批评体制冷漠无情，<br>
-                        但换个角度想一想：<br>
-                        如果你是用人者、是奖学金发放者，<br>
-                        你又凭什么相信一个连绩点都守不住的人，<br>
-                        能在其他地方证明自己的价值？
-                    </p>
-                    <p data-translate="philosophy-cont5">
-                        这是一个悖论：<br>
-                        体制信任分数，学生追逐分数，<br>
-                        而分数，消耗了学生的多样性与想象力。<br>
-                        然而，这一切并非孤立存在。<br>
-                        如今，信息膨胀的时代来临，<br>
-                        互联网让我们随时可以获得知识，<br>
-                        却也把我们困在算法编织的茧房中。<br>
-                        一旦你接触到一个极端观念、一个耸动言论，<br>
-                        它便悄无声息地植入大脑，滋生蔓延。<br>
-                        在几十亿人口的海洋中，<br>
-                        这种“遗传漂变”逐渐成为洪流。<br>
-                        我们以为自由选择，<br>
-                        实则只是被输入、被塑造、被影响。<br>
-                        这并非危言耸听，也不是失败的宣告。<br>
-                        恰恰相反，面对这种局面，<br>
-                        我们唯一要问自己的问题是：<br>
-                        在这场从筛选到筛选的奔跑里，<br>
-                        真正能带着你穿越门槛、走向远方的是什么？<br>
-                        它不会是单一的分数，<br>
-                        不会是速成的题库，不会是老师的PPT；<br>
-                        它只能是你内心的动力，<br>
-                        你的自我更新能力，<br>
-                        你对问题的好奇心与解决能力。<br>
-                        这正是任何筛子无法筛掉的核心，<br>
-                        是任何赛道之外，<br>
-                        你唯一能带走的武器。
-                    </p>
-                    <p data-translate="philosophy-cont6">
-                        因此，或许有些辛苦也无妨，但那必须是有价值的辛苦。<br>
-                        即使绩点依旧是门槛，也不应让它成为牢笼。<br>
-                        守住最低的分数线，<br>
-                        把剩下的时间与精力，<br>
-                        投入到那些没人要求你做的事：<br>
-                        读一本没人催促的书，<br>
-                        做一个无人要求的项目，<br>
-                        与一个不在同一圈层的人，<br>
-                        进行一次深刻的对话。<br>
-                        别怕走得慢，怕的是你根本没有开始走自己的路。<br>
-                        学历是门槛，<br>
-                        门槛之后，才是广阔的旷野。<br>
-                        因此，我们想帮助你，<br>
-                        不仅仅是提供更丰富的信息，<br>
-                        而是传递一种观念——<br>
-                        最快的路，往往是最慢的路。<br>
-                        我们做的，不是为你铺设一条捷径，<br>
-                        而是将我们在这条路上的脚步展示给你。<br>
-                        至于你将走向何方，你来决定。<br>
-                        愿你有勇气越过这道筛子，<br>
-                        更愿你有能力，在无人监督的远方，<br>
-                        自己为自己点亮前行的灯。<br>
-                        ABF——给你一个更好的未来。
-                    </p>
-                </div>
+            <div class="filter-bar" id="bio-filters">
+                <button class="filter-btn active" onclick="filterBio('all')">ALL</button>
+                <button class="filter-btn" onclick="filterBio('db')">数据库 (Database)</button>
+                <button class="filter-btn" onclick="filterBio('tool')">常用工具 (Tools)</button>
+                <button class="filter-btn" onclick="filterBio('seq')">序列分析 (Sequence)</button>
+                <button class="filter-btn" onclick="filterBio('prot')">蛋白质分析 (Protein)</button>
+                <button class="filter-btn" onclick="filterBio('lit')">文献检索 (Literature)</button>
+            </div>
+            <div class="data-grid" id="bio-grid"></div>
+        </section>
 
-                <div class="download-section">
-                    <h3 data-translate="anonymous-upload">匿名上传与管理</h3>
-                    <p data-translate="anonymous-desc">本项目不接受所有人直接提交，但欢迎匿名投稿。请发送资料或更新建议到匿名邮箱。</p>
-                    <a href="mailto:cyploveheme@gmail.com" class="download-btn" data-translate="contact-us">📧 联系我们</a>
-                </div>
+        <section id="courses">
+            <div class="section-header">
+                <h2>ACADEMIC ARCHIVE</h2>
+                <p>核心课程笔记与思维导图 | 持续更新</p>
+            </div>
+            <div class="data-grid" id="courses-grid"></div>
+        </section>
 
-                <div class="disclaimer">
-                    <h3 data-translate="disclaimer">⚠️ 免责声明</h3>
-                    <ul>
-                        <li data-translate="disclaimer-1">本项目所有内容仅供学习参考</li>
-                        <li data-translate="disclaimer-2">禁止将资料用于考试舞弊或违法用途</li>
-                        <li data-translate="disclaimer-3">所有上传文件均加水印，版权归原作者或项目组所有</li>
-                        <li data-translate="disclaimer-4">我们不求认同，只愿尊重</li>
-                    </ul>
-                </div>
-            </section>
+        <section id="global">
+            <div class="section-header">
+                <h2>GLOBAL CURRICULUM ARCHIVE</h2>
+                <p>全球生物科学培养方案收集 / 课余分析 / 职业规划 / 学习方向 </p>
+            </div>
+            <div class="stats-dashboard">
+                <div class="stat-item"><div class="stat-num">130</div><div class="stat-label">PDF Documents</div></div>
+                <div class="stat-item"><div class="stat-num">74</div><div class="stat-label">Universities</div></div>
+                <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">Major Regions</div></div>
+                <div class="stat-item"><div class="stat-num">160<span style="font-size:1rem">MB</span></div><div class="stat-label">Total Data</div></div>
+            </div>
+            <div class="region-group">
+                <h3 class="region-title">📂 区域方案下载 (Regional Downloads)</h3>
+                <p style="color:var(--text-muted); margin-bottom:30px; font-size:0.9rem;">以下资料包含各高校生物科学及相关专业的完整培养方案。通过对比不同国家/地区的课程设置，你可以分析学科前沿、制定选课策略以及规划留学/深造方向。</p>
+                <div class="data-grid" id="global-grid"></div>
+            </div>
+        </section>
 
-            <!-- 笔记资料 -->
-            <section id="notes" class="section">
-                <h2 data-translate="course-materials">📚 课程笔记资料</h2>
-                <p data-translate="materials-desc">所有资料按课程分类整理，每个文件都包含项目水印和版本信息。</p>
-                
-                <div class="material-intro">
-                    <h3 data-translate="evolution-notes">进化生物学复习笔记</h3>
-                    <div class="material-meta">
-                        <div class="meta-item">
-                            <strong data-translate="version">版本</strong>
-                            2025-7-4
-                        </div>
-                        <div class="meta-item">
-                            <strong data-translate="textbook">适用教材</strong>
-                            《进化生物学导论》（第三版）
-                        </div>
-                        <div class="meta-item">
-                            <strong data-translate="author">作者</strong>
-                            项目组整理
-                        </div>
-                        <div class="meta-item">
-                            <strong data-translate="intro">简介</strong>
-                            <span data-translate="notes-intro">本笔记涵盖进化生物学的核心概念，包括自然选择、基因漂变、物种形成等关键主题，帮助学生系统掌握进化生物学的基本原理。</span>
-                        </div>
-                    </div>
-                </div>
+        <section id="ngo">
+            <div class="section-header">
+                <h2>PUBLIC WELFARE</h2>
+                <p>去支持，去改变 | 全球公益平台链接</p>
+            </div>
+            <div class="data-grid" id="ngo-grid"></div>
+            <div style="margin-top: 50px; padding: 30px; border: 1px dashed var(--line-color); text-align: center;">
+                <h3 style="color: var(--accent-cyan)">加入 ABF</h3>
+                <p style="color: var(--text-muted); margin: 10px 0;">本项目不接受直接提交，欢迎匿名投稿至邮箱。</p>
+                <a href="mailto:cyploveheme@gmail.com" style="color: var(--accent-gold); font-family: var(--font-code);">✉ cyploveheme@gmail.com</a>
+            </div>
+        </section>
 
-                <div class="download-section">
-                    <h3 data-translate="available-materials">当前可用资料</h3>
-                    <a href="https://www.jianguoyun.com/p/Dc_9j2AQ8ITEDRiGiIkGIAA" class="download-btn" target="_blank">分子生物学笔记 V2025-7-4</a>
-                    <a href="https://www.jianguoyun.com/p/DW4a85YQ8ITEDRiknIkGIAA" class="download-btn" target="_blank">生态学思维导图 V2025-7-4</a>
-                    <a href="https://www.jianguoyun.com/p/DdUhX34Q8ITEDRinnIkGIAA" class="download-btn" target="_blank">进化生物学笔记 V2025-7-4</a>
-                    <a href="https://www.jianguoyun.com/p/DeE-K6IQ8ITEDRjj44kGIAA" class="download-btn" target="_blank">生态学笔记 V2025-7-8</a>
-                    <a href="https://www.jianguoyun.com/p/DULGb5wQ8ITEDRij44kGIAA" class="download-btn" target="_blank">保护生物学笔记 V2025-7-8</a>  
-                    <a href="https://www.jianguoyun.com/p/DZrn3ecQ8ITEDRj15IkGIAA" class="download-btn" target="_blank">生物统计学学习测试 V2025-7-8</a>
-		    <a href="https://www.jianguoyun.com/p/DXQ-OOoQ8ITEDRin-4oGIAA" class="download-btn" target="_blank">遗传学笔记 V2025-7-17</a>
-  		    <a href="https://www.jianguoyun.com/p/DYjyChEQ8ITEDRip-4oGIAA" class="download-btn" target="_blank">动物生物学名词解释 V2025-7-17</a>
-                    <p style="margin-top: 1rem; color: var(--text-secondary);" data-translate="more-materials">更多课程资料正在整理中，敬请期待...</p>
-                </div>
-
-                <div class="features">
-                    <div class="feature-card">
-                        <h3 data-translate="file-naming">📋 文件命名规范</h3>
-                        <p data-translate="naming-desc">课程名称/版本号_更新日期.pdf<br>例：分子生物学/V1.0_2024-03-01.pdf</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3 data-translate="version-control">🔄 版本控制</h3>
-                        <p data-translate="control-desc">每个资料包含README.md文件，记录版本说明与更新日志，确保透明可追溯。</p>
-                    </div>
-                </div>
-
-                <!-- 反馈表单 -->
-                <div class="feedback-section">
-                    <h3 data-translate="feedback">💬 资料反馈</h3>
-                    <p data-translate="feedback-desc">如果您发现资料有问题，或者有任何改进建议，请填写以下表单反馈给我们。</p>
-                    <form id="feedback-form">
-                        <div class="form-group">
-                            <label for="feedback-type" data-translate="feedback-type">反馈类型</label>
-                            <select id="feedback-type" class="form-control" required>
-                                <option value="" disabled selected></option>
-                                <option value="error" data-translate="error">资料错误</option>
-                                <option value="suggestion" data-translate="suggestion">改进建议</option>
-                                <option value="other" data-translate="other">其他问题</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="feedback-content" data-translate="feedback-content">反馈内容</label>
-                            <textarea id="feedback-content" class="form-control" required placeholder="请详细描述您的反馈..."></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn" data-translate="submit">提交反馈</button>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Q&A -->
-            <section id="qa" class="section">
-                <h2 data-translate="qa-title">❓ 匿名问答模块</h2>
-                <p data-translate="qa-desc">我们鼓励大家匿名提问学术、生活、价值观等各方面问题。所有问答都将匿名处理并公开分享。</p>
-
-                <div class="contact-form">
-                    <h3 data-translate="submit-question">📮 提交问题</h3>
-                    <form id="qa-form">
-                        <div class="form-group">
-                            <label for="question-type" data-translate="question-type">问题类型</label>
-                            <select id="question-type" class="form-control" required>
-                                <option value="" disabled selected></option>
-                                <option value="academic" data-translate="academic">学术问题</option>
-                                <option value="life" data-translate="life">生活问题</option>
-                                <option value="values" data-translate="values">价值观问题</option>
-                                <option value="other" data-translate="other-question">其他问题</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="question-content" data-translate="question-content">问题内容</label>
-                            <textarea id="question-content" class="form-control" required placeholder="请详细描述您的问题..."></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn" data-translate="submit">提交问题</button>
-                    </form>
-                </div>
-
-                <h3 style="margin-top: 2rem;" data-translate="example-questions">📜 示例问题</h3>
-                <div class="qa-item">
-                    <div class="qa-question" data-translate="question-1">如何高效记忆生物化学中的复杂代谢途径？</div>
-                    <div class="qa-answer" data-translate="answer-1">可以尝试以下方法：1) 绘制思维导图，将代谢途径可视化；2) 使用间隔重复记忆法；3) 将代谢途径与实际应用联系起来；4) 与同学讨论并互相提问。</div>
-                </div>
-                <div class="qa-item">
-                    <div class="qa-question" data-translate="question-2">如何平衡专业课程学习与个人兴趣发展？</div>
-                    <div class="qa-answer" data-translate="answer-2">建议制定合理的时间表，明确优先级，确保专业学习的同时留出时间发展个人兴趣。可以尝试将个人兴趣与专业结合，例如生物摄影、科普写作等。</div>
-                </div>
-            </section>
-
-            <!-- 加入我们 -->
-            <section id="join" class="section">
-                <h2 data-translate="join-us">🤝 加入我们</h2>
-                <p data-translate="join-desc">我们欢迎所有认同开源精神的同学加入A Better Future项目。无论您擅长资料整理、内容创作还是技术支持，都可以为项目贡献力量。</p>
-
-                <div class="features">
-                    <div class="feature-card">
-                        <h3 data-translate="join-methods">🤝 加入方式</h3>
-                        <p data-translate="join-methods-desc">1. 发送资料或更新建议到匿名邮箱<br>2. 提交问题或建议到Q&A模块<br>3. 通过匿名邮箱申请成为核心贡献者</p>
-                    </div>
-                    <div class="feature-card">
-                        <h3 data-translate="contribution-types">📋 贡献类型</h3>
-                        <p data-translate="contribution-list">资料整理、内容创作、技术支持、社区维护、翻译校对</p>
-                    </div>
-                </div>
-
-                <div class="contact-form">
-                    <h3 data-translate="contact-us">📧 联系我们</h3>
-                    <form id="join-form">
-                        <div class="form-group">
-                            <label for="join-name" data-translate="name">姓名（可匿名）</label>
-                            <input type="text" id="join-name" class="form-control" placeholder="例如：生物21级同学">
-                        </div>
-                        <div class="form-group">
-                            <label for="join-email" data-translate="email">邮箱</label>
-                            <input type="email" id="join-email" class="form-control" required placeholder="用于联系的邮箱">
-                        </div>
-                        <div class="form-group">
-                            <label for="join-type" data-translate="contribution-field">希望贡献的领域</label>
-                            <select id="join-type" class="form-control" required>
-                                <option value="" disabled selected></option>
-                                <option value="organization" data-translate="organization">资料整理</option>
-                                <option value="creation" data-translate="creation">内容创作</option>
-                                <option value="tech" data-translate="tech">技术支持</option>
-                                <option value="community" data-translate="community">社区维护</option>
-                                <option value="translation" data-translate="translation">翻译校对</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="join-message" data-translate="message">留言（选填）</label>
-                            <textarea id="join-message" class="form-control" placeholder="您有什么想对我们说的吗？"></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn" data-translate="apply">提交申请</button>
-                    </form>
-                </div>
-            </section>
-        </main>
     </div>
 
-    <!-- 弹窗提示 -->
-    <div class="modal" id="welcomeModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 data-translate="welcome-title">A Better Future</h2>
-                <span class="close-btn" data-translate="close-btn">×</span>
-            </div>
-            <div class="modal-body">
-                <p data-translate="welcome-message">为了给你一个更好的未来</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- 通知提示 -->
-    <div class="toast" id="toast"></div>
+    <!-- 页脚 - 英文标语 -->
+    <footer>
+        <div class="footer-quote">We will help you hold up the torch that lights the way forward</div>
+        <div class="footer-divider"></div>
+        <p>A Better Future &copy; 2025 | 匿名开源项目 | 照亮前方的火炬</p>
+    </footer>
 
     <script>
-        // 主题切换
-        const themeSelector = document.getElementById('themeSelector');
-        themeSelector.addEventListener('change', function() {
-            document.body.setAttribute('data-theme', this.value);
-            localStorage.setItem('theme', this.value);
-        });
+        // --- 数据源 ---
+        const bioData = [
+            { cat: 'db', name: 'NCBI', url: 'https://www.ncbi.nlm.nih.gov/ ', desc: '涵盖基因、蛋白质等多种生物信息数据库 ' },
+            { cat: 'db', name: 'EMBL-EBI', url: 'https://www.ebi.ac.uk/ ', desc: '欧洲重要的生物信息数据库与分析工具 ' },
+            { cat: 'db', name: 'GeneCards', url: 'https://www.genecards.org/ ', desc: '专注于基因功能、表达的整合数据库 ' },
+            { cat: 'db', name: 'Uniprot', url: 'https://www.uniprot.org/ ', desc: '权威的蛋白质序列信息数据库 ' },
+            { cat: 'db', name: 'KEGG', url: 'https://www.genome.jp/kegg/pathway.html ', desc: '主要用于信号通路分析 ' },
+            { cat: 'db', name: 'UCSC', url: 'https://genome.ucsc.edu/index.html ', desc: '基因组浏览器，查看和分析基因组数据 ' },
+            { cat: 'db', name: 'Ensembl', url: 'https://asia.ensembl.org/index.html ', desc: '提供基因组注释、序列等信息 ' },
+            { cat: 'tool', name: 'Softberry', url: 'http://www.softberry.com/ ', desc: '包含多种生物信息分析工具 ' },
+            { cat: 'tool', name: 'Genscript Tools', url: 'https://www.genscript.com/tools.html ', desc: '引物设计、稀有密码子分析等实用工具 ' },
+            { cat: 'tool', name: 'Expasy', url: 'https://www.expasy.org/ ', desc: '瑞士生信研究所平台，丰富的蛋白质分析工具 ' },
+            { cat: 'tool', name: 'DTU Health Tech', url: 'https://services.healthtech.dtu.dk/ ', desc: '丹麦技术大学提供的生信工具平台 ' },
+            { cat: 'tool', name: 'OBRC', url: 'https://www.hsls.pitt.edu/obrc/ ', desc: '匹兹堡大学健康科学图书馆工具中心 ' },
+            { cat: 'tool', name: 'CCB (JHU)', url: 'https://ccb.jhu.edu/software.shtml ', desc: '约翰·霍普金斯大学计算生物学中心工具 ' },
+            { cat: 'seq', name: 'Genscan', url: '#', desc: '用于基因组外显子序列分析 ' },
+            { cat: 'seq', name: 'FGENESH', url: '#', desc: '预测基因外显子结构 ' },
+            { cat: 'seq', name: 'BLAST', url: 'https://blast.ncbi.nlm.nih.gov/ ', desc: '核酸或蛋白质序列比对工具 ' },
+            { cat: 'seq', name: 'Primer-BLAST', url: 'https://www.ncbi.nlm.nih.gov/tools/primer-blast/ ', desc: '引物设计工具，提高特异性 ' },
+            { cat: 'seq', name: 'CpG Finder', url: '#', desc: '查找和预测CpG位点 ' },
+            { cat: 'seq', name: 'BioGPS', url: 'http://biogps.org/ ', desc: '查询基因表达谱 ' },
+            { cat: 'prot', name: 'ProtParam', url: 'https://web.expasy.org/protparam/ ', desc: '分析蛋白质分子量、等电点等理化性质 ' },
+            { cat: 'prot', name: 'PSORTb', url: 'https://www.psort.org/psortb/ ', desc: '原核生物亚细胞定位预测 ' },
+            { cat: 'prot', name: 'SignalP 5.0', url: 'https://services.healthtech.dtu.dk/service.php?SignalP-5.0 ', desc: '预测蛋白质信号肽 ' },
+            { cat: 'prot', name: 'SOPMA', url: 'https://npsa-prabi.ibcp.fr/NPSA/npsa_sopma.html ', desc: '蛋白质二级结构预测 ' },
+            { cat: 'prot', name: 'TMHMM', url: 'https://services.healthtech.dtu.dk/service.php?TMHMM-2.0 ', desc: '蛋白质跨膜区分析 ' },
+            { cat: 'prot', name: 'CD-search', url: 'https://www.ncbi.nlm.nih.gov/Structure/cdd/wrpsb.cgi ', desc: '查找蛋白质保守结构域 ' },
+            { cat: 'lit', name: 'PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/ ', desc: '生物医学文献检索 ' },
+            { cat: 'lit', name: 'Web of Science', url: 'https://www.webofscience.com/ ', desc: '国际权威学术文献索引 ' },
+            { cat: 'lit', name: 'CNKI', url: 'https://www.cnki.net/ ', desc: '中国知网 - 中文文献数据库 ' }
+        ];
 
-        // 恢复上次选择的主题
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.body.setAttribute('data-theme', savedTheme);
-            themeSelector.value = savedTheme;
-        }
+        const coursesData = [
+            { tag: 'V2025-7-4', title: '分子生物学', desc: '涵盖核心概念与实验原理，包括DNA复制、转录、翻译等关键过程。', url: 'https://www.jianguoyun.com/p/Dc_9j2AQ8ITEDRiGiIkGIAA ' },
+            { tag: 'V2025-7-4', title: '进化生物学', desc: '自然选择、基因漂变与物种形成，系统梳理进化理论框架。', url: 'https://www.jianguoyun.com/p/DdUhX34Q8ITEDRinnIkGIAA ' },
+            { tag: 'V2025-7-4', title: '生态学 (思维导图)', desc: '系统性知识梳理与框架构建，可视化生态学核心概念。', url: 'https://www.jianguoyun.com/p/DW4a85YQ8ITEDRiknIkGIAA ' },
+            { tag: 'V2025-7-8', title: '生态学', desc: '生态系统结构与功能，种群与群落生态学基础。', url: 'https://www.jianguoyun.com/p/DeE-K6IQ8ITEDRjj44kGIAA ' },
+            { tag: 'V2025-7-8', title: '保护生物学', desc: '关注生物多样性与危机应对，探索保护策略与实践。', url: 'https://www.jianguoyun.com/p/DULGb5wQ8ITEDRij44kGIAA ' },
+            { tag: 'V2025-7-8', title: '生物统计学', desc: '数据分析基础与实验设计，包含习题集与案例分析。', url: 'https://www.jianguoyun.com/p/DZrn3ecQ8ITEDRj15IkGIAA ' },
+            { tag: 'V2025-7-17', title: '遗传学笔记', desc: '孟德尔遗传、连锁交换与基因作图，经典遗传学核心内容。', url: 'https://www.jianguoyun.com/p/DXQ-OOoQ8ITEDRin-4oGIAA ' },
+            { tag: 'V2025-7-17', title: '动物生物学名词解释', desc: '动物生物学核心术语与概念解析，适合考前复习。', url: 'https://www.jianguoyun.com/p/DYjyChEQ8ITEDRip-4oGIAA ' }
+        ];
 
-       
-        // 导航切换
-        const navItems = document.querySelectorAll('.nav-item');
-        const sections = document.querySelectorAll('.section');
+        const globalData = [
+            { region: 'CN', color: '#ff4500', title: '中国地区 (China)', desc: '• 包含清华、北大、复旦等顶尖高校方案<br>• 文件数量: <strong>29</strong> 份<br>• 适合对比国内教学体系差异', url: 'https://www.jianguoyun.com/p/DSHK1LUQ8ITEDRiKqpoGIAA ' },
+            { region: 'USA', color: '#00f3ff', title: '美国地区 (USA)', desc: '• 涵盖 Ivy League 及各类州立大学<br>• 文件数量: <strong>75</strong> 份<br>• 重点参考：通识教育与科研训练占比', url: 'https://www.jianguoyun.com/p/DdWrYdAQ8ITEDRiJqpoGIAA ' },
+            { region: 'INT', color: '#bd00ff', title: '国际其他 (International)', desc: '• 欧洲、英国、澳洲、亚洲其他地区<br>• 文件数量: <strong>26</strong> 份<br>• 多元化的培养模式参考', url: 'https://www.jianguoyun.com/p/DZWC68kQ8ITEDRiIqpoGIAA ' }
+        ];
 
-        navItems.forEach(item => {
-            item.addEventListener('click', function() {
-                // 更新活动导航项
-                navItems.forEach(nav => nav.classList.remove('active'));
-                this.classList.add('active');
-                
-                // 显示对应部分
-                const targetSection = this.getAttribute('data-section');
-                sections.forEach(section => {
-                    section.classList.remove('active');
-                    if (section.id === targetSection) {
-                        section.classList.add('active');
-                    }
-                });
+        const ngoData = [
+            { name: 'UNICEF', url: 'https://www.unicef.org/ ', cat: '儿童权益', color: '#00f3ff' },
+            { name: 'MSF (无国界医生)', url: 'https://www.doctorswithoutborders.org/ ', cat: '医疗援助', color: '#ff4500' },
+            { name: 'WWF', url: 'https://www.worldwildlife.org/ ', cat: '环境保护', color: '#00b378' },
+            { name: 'Amnesty', url: 'https://www.amnesty.org/ ', cat: '人权', color: '#ffff00' },
+            { name: 'UNESCO', url: 'https://www.unicef.org/ ', cat: '教育文化', color: '#0000ff' }
+        ];
+
+        // --- 渲染逻辑 ---
+        function renderBio(filter) {
+            const container = document.getElementById('bio-grid');
+            container.innerHTML = '';
+            bioData.forEach(item => {
+                if (filter === 'all' || item.cat === filter) {
+                    const url = item.url === '#' ? 'javascript:void(0)' : item.url;
+                    const cursor = item.url === '#' ? 'not-allowed' : 'none';
+                    container.innerHTML += `
+                        <div class="math-card">
+                            <div class="card-tag">${item.cat.toUpperCase()}</div>
+                            <div class="card-title">${item.name}</div>
+                            <div class="card-desc">${item.desc}</div>
+                            <a href="${url}" target="${item.url==='#'?'':'_blank'}" class="card-link" style="cursor:${cursor}">
+                                LAUNCH_PROTOCOL <span>→</span>
+                            </a>
+                        </div>
+                    `;
+                }
             });
-        });
-
-        // 表单提交处理
-        document.getElementById('qa-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showToast('Question submitted, we will reply soon!');
-            this.reset();
-        });
-
-        document.getElementById('join-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showToast('Application submitted, we will contact you soon!');
-            this.reset();
-        });
-
-        document.getElementById('feedback-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            showToast('Feedback submitted, thank you for your support!');
-            this.reset();
-        });
-
-        // 显示通知
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
         }
 
-        // 页面加载时显示第一个部分
-        window.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('home').classList.add('active');
+        function renderCourses() {
+            const container = document.getElementById('courses-grid');
+            container.innerHTML = '';
+            coursesData.forEach(item => {
+                container.innerHTML += `
+                    <div class="math-card">
+                        <div class="card-tag">${item.tag}</div>
+                        <div class="card-title">${item.title}</div>
+                        <div class="card-desc">${item.desc}</div>
+                        <a href="${item.url}" target="_blank" class="card-link">💾 下载/查看</a>
+                    </div>
+                `;
+            });
+        }
+
+        function renderGlobal() {
+            const container = document.getElementById('global-grid');
+            container.innerHTML = '';
+            globalData.forEach(item => {
+                container.innerHTML += `
+                    <div class="math-card" style="border-top: 3px solid ${item.color};">
+                        <div class="card-tag">REGION: ${item.region}</div>
+                        <div class="card-title">${item.title}</div>
+                        <div class="card-desc">${item.desc}</div>
+                        <a href="${item.url}" target="_blank" class="download-btn">📥 下载${item.region}包 (JianGuoYun)</a>
+                    </div>
+                `;
+            });
+        }
+
+        function renderNgo() {
+            const container = document.getElementById('ngo-grid');
+            container.innerHTML = '';
+            ngoData.forEach(item => {
+                container.innerHTML += `
+                    <div class="math-card" style="border-left: 3px solid ${item.color}">
+                        <div class="card-tag" style="color:${item.color}; border-color:${item.color}">${item.cat}</div>
+                        <div class="card-title">${item.name}</div>
+                        <a href="${item.url}" target="_blank" class="card-link" style="color:${item.color}">DONATE / SUPPORT <span>→</span></a>
+                    </div>
+                `;
+            });
+        }
+
+        // --- 页面切换 ---
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            document.querySelectorAll('section').forEach(sec => sec.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            window.scrollTo(0, 0);
             
-            // 如果用户还没有关闭过弹窗，就显示
-            if (!localStorage.getItem('dismissedWelcomeModal')) {
-                document.getElementById('welcomeModal').style.display = 'flex';
+            if (tabId === 'bioinfo') renderBio('all');
+            if (tabId === 'courses') renderCourses();
+            if (tabId === 'global') renderGlobal();
+            if (tabId === 'ngo') renderNgo();
+        }
+
+        // --- 过滤功能 ---
+        window.filterBio = (cat) => {
+            document.querySelectorAll('#bio-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderBio(cat);
+        }
+
+        // --- 背景动画 ---
+        const mathCanvas = document.getElementById('math-canvas');
+        const ctxMath = mathCanvas.getContext('2d');
+        const fogCanvas = document.getElementById('fog-canvas');
+        const ctxFog = fogCanvas.getContext('2d');
+        const cursorCore = document.getElementById('cursor-core');
+        let width, height;
+        let points = [];
+        const POINT_COUNT = 60;
+        const CONNECT_DIST = 150;
+
+        function initCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            mathCanvas.width = width;
+            mathCanvas.height = height;
+            fogCanvas.width = width;
+            fogCanvas.height = height;
+            
+            // 初始化星空点
+            points = [];
+            for(let i = 0; i < POINT_COUNT; i++) {
+                points.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+            
+            // 初始绘制黑色迷雾
+            ctxFog.fillStyle = 'rgba(0, 0, 0, 0.96)';
+            ctxFog.fillRect(0, 0, width, height);
+        }
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+
+        // 绘制点点星空背景
+        function drawBackground() {
+            ctxMath.clearRect(0, 0, width, height);
+            ctxMath.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            points.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if(p.x < 0 || p.x > width) p.vx *= -1;
+                if(p.y < 0 || p.y > height) p.vy *= -1;
+                ctxMath.beginPath();
+                ctxMath.arc(p.x, p.y, 1, 0, Math.PI*2);
+                ctxMath.fill();
+            });
+
+            ctxMath.lineWidth = 0.5;
+            for(let i = 0; i < points.length; i++) {
+                for(let j = i + 1; j < points.length; j++) {
+                    const dx = points[i].x - points[j].x;
+                    const dy = points[i].y - points[j].y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if(dist < CONNECT_DIST) {
+                        const opacity = 1 - (dist / CONNECT_DIST);
+                        ctxMath.strokeStyle = `rgba(100, 200, 255, ${opacity * 0.15})`;
+                        ctxMath.beginPath();
+                        ctxMath.moveTo(points[i].x, points[i].y);
+                        ctxMath.lineTo(points[j].x, points[j].y);
+                        ctxMath.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(drawBackground);
+        }
+        drawBackground();
+
+        // --- 火炬交互逻辑 (永久擦除 + 增亮) ---
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+
+            // 1. 移动鼠标核心
+            cursorCore.style.left = x + 'px';
+            cursorCore.style.top = y + 'px';
+
+            // 2. 永久擦除迷雾
+            ctxFog.globalCompositeOperation = 'destination-out';
+            
+            // 创建柔和的擦除边缘
+            const gradient = ctxFog.createRadialGradient(x, y, 0, x, y, 280);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+            gradient.addColorStop(0.4, 'rgba(0, 0, 0, 0.8)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            
+            ctxFog.fillStyle = gradient;
+            ctxFog.beginPath();
+            ctxFog.arc(x, y, 280, 0, Math.PI * 2);
+            ctxFog.fill();
+
+            // 3. 关键：叠加亮光层，使擦除区域更明亮
+            ctxFog.globalCompositeOperation = 'screen'; // 使用screen混合模式提亮
+            const lightGradient = ctxFog.createRadialGradient(x, y, 0, x, y, 250);
+            lightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.15)'); // 中心半透明白色
+            lightGradient.addColorStop(0.5, 'rgba(255, 200, 100, 0.08)');
+            lightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            
+            ctxFog.fillStyle = lightGradient;
+            ctxFog.beginPath();
+            ctxFog.arc(x, y, 250, 0, Math.PI * 2);
+            ctxFog.fill();
+            
+            ctxFog.globalCompositeOperation = 'source-over'; // 恢复默认
+
+            // 4. 生成火焰粒子
+            if (Math.random() > 0.7) {
+                createFireParticle(x, y);
             }
         });
 
-        // 关闭弹窗
-        document.querySelector('.close-btn').addEventListener('click', function() {
-            document.getElementById('welcomeModal').style.display = 'none';
-            // 记录用户已经关闭过弹窗
-            localStorage.setItem('dismissedWelcomeModal', 'true');
+        // 触摸设备支持
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const x = touch.clientX;
+            const y = touch.clientY;
+            cursorCore.style.left = x + 'px';
+            cursorCore.style.top = y + 'px';
+            
+            ctxFog.globalCompositeOperation = 'destination-out';
+            const gradient = ctxFog.createRadialGradient(x, y, 0, x, y, 250);
+            gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctxFog.fillStyle = gradient;
+            ctxFog.beginPath();
+            ctxFog.arc(x, y, 250, 0, Math.PI * 2);
+            ctxFog.fill();
+
+            // 触摸时也增亮
+            ctxFog.globalCompositeOperation = 'screen';
+            const lightGradient = ctxFog.createRadialGradient(x, y, 0, x, y, 200);
+            lightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+            lightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctxFog.fillStyle = lightGradient;
+            ctxFog.beginPath();
+            ctxFog.arc(x, y, 200, 0, Math.PI * 2);
+            ctxFog.fill();
+            ctxFog.globalCompositeOperation = 'source-over';
         });
+
+        document.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            createFireParticle(touch.clientX, touch.clientY);
+        });
+
+        function createFireParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.className = 'fire-particle';
+            document.body.appendChild(particle);
+            const size = Math.random() * 6 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            particle.style.left = (x + (Math.random() - 0.5) * 20) + 'px';
+            particle.style.top = y + 'px';
+            setTimeout(() => particle.remove(), 1000);
+        }
+
+        // --- 初始化渲染 ---
+        renderBio('all');
+        renderCourses();
+        renderGlobal();
+        renderNgo();
     </script>
 </body>
 </html>
