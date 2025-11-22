@@ -452,7 +452,7 @@
             <div class="contact-form">
                 <h3>匿名投稿与联系</h3>
                 <p style="color: var(--text-muted); margin-bottom: 20px;">本项目不接受直接提交，欢迎匿名投稿至邮箱。请发送资料或更新建议到：</p>
-                <a href="mailto:cyploveheme@gmail.com" style="color: var(--accent-gold); font-family: var(--font-code); font-size: 1.1rem;">✉ cyploveheme@gmail.com</a>
+                <a href="mailto:cyploveheme@gmail.com" style="color: var(--accent-gold); font-family: var(--font-code); font-size: 1.1rem;">cyploveheme@gmail.com</a>
             </div>
         </section>
 
@@ -469,6 +469,7 @@
                 <div class="stat-item"><div class="stat-num" id="tool-count">0</div><div class="stat-label">Tools</div></div>
                 <div class="stat-item"><div class="stat-num" id="seq-count">0</div><div class="stat-label">Sequence</div></div>
                 <div class="stat-item"><div class="stat-num" id="prot-count">0</div><div class="stat-label">Protein</div></div>
+                <div class="stat-item"><div class="stat-num" id="protpred-count">0</div><div class="stat-label">Structure</div></div>
                 <div class="stat-item"><div class="stat-num" id="lit-count">0</div><div class="stat-label">Literature</div></div>
                 <div class="stat-item"><div class="stat-num" id="plot-count">0</div><div class="stat-label">Plotting</div></div>
             </div>
@@ -506,9 +507,38 @@
                 <div class="stat-item"><div class="stat-num">160<span style="font-size:1rem">MB</span></div><div class="stat-label">Total Data</div></div>
             </div>
             <div class="region-group">
-                <h3 class="region-title">📂 区域方案下载 (Regional Downloads)</h3>
+                <h3 class="region-title">区域方案下载 (Regional Downloads)</h3>
                 <p style="color:var(--text-muted); margin-bottom:30px; font-size:0.9rem;">以下资料包含各高校生物科学及相关专业的完整培养方案。通过对比不同国家/地区的课程设置，你可以分析学科前沿、制定选课策略以及规划留学/深造方向。</p>
                 <div class="data-grid" id="global-grid"></div>
+            </div>
+            
+            <!-- 国际网课平台 -->
+            <div class="region-group">
+                <h3 class="region-title">国际网课平台 (Global MOOC Platforms)</h3>
+                <p style="color:var(--text-muted); margin-bottom:30px; font-size:0.9rem;">精选世界顶级在线学习平台，涵盖MOOC课程、职业培训、创意技能等多个领域，助您开拓全球视野、掌握前沿知识。</p>
+                
+                <!-- 网课平台统计面板 -->
+                <div class="stats-dashboard" id="course-stats">
+                    <div class="stat-item"><div class="stat-num" id="total-platforms">0</div><div class="stat-label">Platforms</div></div>
+                    <div class="stat-item"><div class="stat-num" id="mooc-count">0</div><div class="stat-label">MOOC</div></div>
+                    <div class="stat-item"><div class="stat-num" id="free-count">0</div><div class="stat-label">Free</div></div>
+                    <div class="stat-item"><div class="stat-num" id="skill-count">0</div><div class="stat-label">Skills</div></div>
+                    <div class="stat-item"><div class="stat-num" id="tech-count">0</div><div class="stat-label">Tech</div></div>
+                    <div class="stat-item"><div class="stat-num" id="university-count">0</div><div class="stat-label">University</div></div>
+                </div>
+                
+                <!-- 网课平台过滤条 -->
+                <div class="filter-bar" id="course-filters">
+                    <button class="filter-btn active" onclick="filterCourse('all')">ALL</button>
+                    <button class="filter-btn" onclick="filterCourse('mooc')">顶级MOOC (Top MOOC)</button>
+                    <button class="filter-btn" onclick="filterCourse('free')">免费学习 (Free Learning)</button>
+                    <button class="filter-btn" onclick="filterCourse('skill')">职业技能 (Professional Skills)</button>
+                    <button class="filter-btn" onclick="filterCourse('creative')">创意技能 (Creative Skills)</button>
+                    <button class="filter-btn" onclick="filterCourse('tech')">技术专业 (Tech Expertise)</button>
+                    <button class="filter-btn" onclick="filterCourse('university')">名校官方 (University Official)</button>
+                </div>
+                
+                <div class="data-grid" id="course-grid"></div>
             </div>
         </section>
 
@@ -521,7 +551,7 @@
             <div style="margin-top: 50px; padding: 30px; border: 1px dashed var(--line-color); text-align: center;">
                 <h3 style="color: var(--accent-cyan)">加入 ABF</h3>
                 <p style="color: var(--text-muted); margin: 10px 0;">本项目不接受直接提交，欢迎匿名投稿至邮箱。</p>
-                <a href="mailto:cyploveheme@gmail.com" style="color: var(--accent-gold); font-family: var(--font-code);">✉ cyploveheme@gmail.com</a>
+                <a href="mailto:cyploveheme@gmail.com" style="color: var(--accent-gold); font-family: var(--font-code);">cyploveheme@gmail.com</a>
             </div>
         </section>
 
@@ -555,6 +585,22 @@
             { cat: 'db', name: '百迈客生物云', url: 'http://www.biomarker.com.cn/biocloud/jiyinshujuku ', desc: '生物基因数据库与分析工具平台 ' },
             { cat: 'db', name: 'Figshare', url: 'https://figshare.com/ ', desc: '通用在线数字存储库，科研数据分享平台 ' },
             
+            // 专业科学数据库 (Specialized Scientific Databases)
+            { cat: 'db', name: 'COCONUT', url: 'https://coconut.naturalproducts.net/ ', desc: '开放获取的天然产物数据库，整合超过40万种天然产物数据，为药物发现和化学生物学研究提供资源。' },
+            { cat: 'db', name: 'ICSD', url: 'http://www2.fiz-karlsruhe.de/icsd_home.html ', desc: '无机晶体结构数据库，全球最大权威的无机化合物晶体信息数据库，包含晶胞参数、原子坐标等详细数据。' },
+            { cat: 'db', name: 'CCDC', url: 'https://www.ccdc.cam.ac.uk/ ', desc: '剑桥晶体数据中心，维护全球最大的小分子有机和金属有机化合物晶体结构数据库。' },
+            { cat: 'db', name: 'COD', url: 'http://www.crystallography.net/cod/ ', desc: '开放晶体结构数据库，免费提供有机、无机及金属有机化合物的晶体结构数据。' },
+            { cat: 'db', name: 'Materials Project', url: 'https://materialsproject.org/ ', desc: '基于高通量计算的材料数据库，提供材料的热力学、电子结构、力学等性质，用于新材料设计。' },
+            { cat: 'db', name: 'AMCSD', url: 'http://rruff.geo.arizona.edu/AMS/amcsd.php ', desc: '美国矿物学家晶体结构数据库，免费开放的矿物晶体结构数据资源。' },
+            
+            // 新增专业科学数据库 (Specialized Scientific Databases - 新增)
+            // • COCONUT - 天然产物数据库
+            // • ICSD - 无机晶体结构数据库  
+            // • CCDC - 剑桥晶体数据中心
+            // • COD - 开放晶体结构数据库
+            // • Materials Project - 材料计算数据库
+            // • AMCSD - 矿物学数据库
+            
             // 常用工具 (Tools)
             { cat: 'tool', name: 'Softberry', url: 'http://www.softberry.com/ ', desc: '包含多种生物信息分析工具 ' },
             { cat: 'tool', name: 'Genscript Tools', url: 'https://www.genscript.com/tools.html ', desc: '引物设计、稀有密码子分析等实用工具 ' },
@@ -567,6 +613,10 @@
             { cat: 'tool', name: 'SMART', url: 'https://smart.embl.de/ ', desc: '保守结构域比较和蛋白质模块化分析工具 ' },
             { cat: 'tool', name: 'STRING', url: 'https://cn.string-db.org/ ', desc: '蛋白质相互作用数据库和网络分析工具 ' },
             { cat: 'tool', name: 'T-COFFEE', url: 'https://tcoffee.crg.eu/ ', desc: '多序列比对程序，准确性优于传统方法 ' },
+            { cat: 'tool', name: '科研图书网', url: 'https://www.iresearchbook.cn/f/channel_index?placeID=20033 ', desc: '中文科研资源导航网站，整合数据库、电子书、学术工具和资讯，为科研人员提供便捷的资源入口。' },
+            
+            // 新增科研资源导航 (Research Resource Navigation - 新增)
+            // • 科研图书网 - 中文科研资源导航平台
             
             // 序列分析 (Sequence)
             { cat: 'seq', name: 'Genscan', url: '#', desc: '用于基因组外显子序列分析 ' },
@@ -603,6 +653,16 @@
             { cat: 'lit', name: 'PubPeer', url: 'https://pubpeer.com/login ', desc: '发表后同行评议平台 ' },
             { cat: 'lit', name: 'AMiner', url: 'https://www.aminer.cn/ ', desc: 'AI赋能科技情报挖掘和分析平台 ' },
             
+            // 学术检索与获取 (Academic Search & Access)
+            { cat: 'lit', name: 'ScienceDirect', url: 'https://www.sciencedirect.com/ ', desc: '爱思唯尔旗下科学文献数据库，提供数千种期刊和图书的全文访问，是进行学术文献检索的核心平台。' },
+            { cat: 'lit', name: 'Sci-Hub', url: 'https://www.sci-hub.se/database ', desc: '学术论文获取平台，通过绕过付费墙为用户提供免费的学术文献PDF下载服务。' },
+            { cat: 'lit', name: 'LetPub', url: 'https://www.letpub.com.cn/index.php?page=journalapp&view=search ', desc: '面向中国科研人员的学术服务网站，提供期刊查询系统，帮助作者筛选和查找合适的目标期刊。' },
+            
+            // 新增学术检索与获取平台 (Academic Search & Access - 新增)
+            // • ScienceDirect - 爱思唯尔文献数据库
+            // • Sci-Hub - 学术论文获取平台  
+            // • LetPub - 期刊选择工具
+            
             // 科研绘图 (Scientific Plotting)
             { cat: 'plot', name: 'Servier Medical Art', url: 'https://smart.servier.com/ ', desc: '免费的医学和科学插图素材库 ' },
             { cat: 'plot', name: 'BioRender', url: 'https://www.biorender.com/ ', desc: '强大的在线科学绘图平台 ' },
@@ -637,6 +697,35 @@
             { name: 'UNESCO', url: 'https://www.unicef.org/ ', cat: '教育文化', color: '#0000ff' }
         ];
 
+        const coursePlatformData = [
+            // 顶级MOOC平台 (Top MOOC Platforms)
+            { cat: 'mooc', name: 'Coursera', url: 'https://www.coursera.org', desc: '全球领先的在线学习平台，与斯坦福、耶鲁、普林斯顿等顶级大学合作，提供高质量MOOC课程，涵盖编程、商业、数据科学、机器学习等领域。许多课程可获得大学学分或专业证书。', color: '#5A67D8' },
+            { cat: 'mooc', name: 'edX', url: 'https://www.edx.org', desc: '麻省理工学院和哈佛大学联合创建的免费在线课程平台，与全球160多所知名大学合作，提供世界顶级大学的课程。课程覆盖科学、工程、商学、人文社科等多个领域，毕业后可获得认证证书。', color: '#0075B8' },
+            { cat: 'mooc', name: 'Udemy', url: 'https://www.udemy.com', desc: '大型在线学习市场平台，拥有超过20万门课程和5000万学员。提供海量实用技能课程，从编程开发到设计创意，从商业管理到个人发展。支持终身学习计划，提供付费会员服务。', color: '#A435F0' },
+            
+            // 免费学习平台 (Free Learning Platforms)
+            { cat: 'free', name: 'Khan Academy', url: 'https://www.khanacademy.org', desc: '完全免费的非营利教育平台，提供从幼儿园到大学预科的全面课程，包括数学、科学、编程、经济、艺术等。拥有个性化学习仪表板，支持多种语言，为全球数百万学生提供免费优质教育资源。', color: '#14BF96' },
+            { cat: 'free', name: 'MIT OpenCourseWare', url: 'https://ocw.mit.edu', desc: '麻省理工学院免费开放课程资料平台，提供MIT几乎所有本科和研究生课程的完整材料，包括讲义、视频、作业和考试题等。无注册要求，完全免费，是获取世界顶级理工学院教育资源的最佳途径。', color: '#A31F34' },
+            { cat: 'free', name: 'FutureLearn', url: 'https://www.futurelearn.com', desc: '来自英国开放大学的免费在线课程平台，与世界顶级大学和机构合作，专注于社交学习体验。提供短期课程和完整项目，支持与全球学习者互动讨论，许多课程提供数字证书。', color: '#00A4E4' },
+            
+            // 职业技能平台 (Professional Skills)
+            { cat: 'skill', name: 'LinkedIn Learning', url: 'https://learning.linkedin.com', desc: 'LinkedIn旗下的专业技能学习平台，提供超过16,000门课程，涵盖商业技能、技术技能、创意技能等领域。与LinkedIn档案集成，支持技能评估和职业发展路径规划，适合职场人士持续学习。', color: '#0077B5' },
+            { cat: 'skill', name: 'Pluralsight', url: 'https://www.pluralsight.com', desc: '专业的IT和技术技能学习平台，专注于软件开发、云技术、网络安全、数据分析等领域的深度培训。提供技能评估工具、技术路径指导和企业学习解决方案，是IT专业人士提升技能的首选平台。', color: '#F15B2A' },
+            { cat: 'skill', name: 'Udacity', url: 'https://www.udacity.com', desc: '专注技术领域的在线学习平台，提供纳米学位项目，聚焦人工智能、数据科学、自动驾驶、云计算等前沿技术。与Google、IBM、Amazon等企业合作，提供实际项目经验，增强就业竞争力。', color: '#01B3A6' },
+            
+            // 创意技能平台 (Creative Skills)
+            { cat: 'creative', name: 'Skillshare', url: 'https://www.skillshare.com', desc: '专注于创意技能的学习社区，提供设计、摄影、插画、写作、视频制作、音乐等创意类课程。由创意专业人士授课，强调实践项目和技能应用。支持订阅制，提供大量创意灵感和社区互动。', color: '#00A860' },
+            { cat: 'creative', name: 'MasterClass', url: 'https://www.masterclass.com', desc: '邀请世界级专家授课的在线学习平台，涵盖烹饪、表演、写作、导演、音乐、体育等创意和生活技能领域。由名人专家亲自授课，提供独特的洞察和实践经验，适合追求卓越的学习者。', color: '#FF5E5B' },
+            
+            // 技术专业平台 (Technical Expertise)
+            { cat: 'tech', name: 'Codecademy', url: 'https://www.codecademy.com', desc: '互动式编程学习平台，提供HTML、CSS、JavaScript、Python、SQL、Java等主流编程语言的实战课程。强调边学边做，通过编程练习和项目帮助学习者掌握编程技能，适合编程初学者和进阶者。', color: '#1F4056' },
+            { cat: 'tech', name: 'DataCamp', url: 'https://www.datacamp.com', desc: '专注数据科学和机器学习的在线学习平台，提供Python、R、SQL等数据分析工具的培训课程。涵盖数据清洗、可视化、统计建模、机器学习等主题，通过实际数据集进行练习，适合数据分析师和数据科学家。', color: '#FF6E6E' },
+            
+            // 名校官方平台 (University Official Platforms)
+            { cat: 'university', name: 'Harvard Online', url: 'https://online.harvard.edu', desc: '哈佛大学官方在线学习平台，提供哈佛顶级教授授课的高质量课程和专业证书项目。涵盖商业、法学、医学、公共政策、计算机科学等学科领域，部分课程可获得哈佛继续教育学分，学术严谨性极高。', color: '#A41034' },
+            { cat: 'university', name: 'Stanford Online', url: 'https://online.stanford.edu', desc: '斯坦福大学官方在线教育平台，提供包括人工智能、创业领导力、可持续发展、工程等领域的课程和证书项目。秉承斯坦福创新精神，提供世界级的研究生水平和职业教育，适合追求学术卓越的学习者。', color: '#8C1515' }
+        ];
+
         // --- 渲染逻辑 ---
         function renderBio(filter) {
             const container = document.getElementById('bio-grid');
@@ -665,6 +754,7 @@
             const toolCount = bioData.filter(item => item.cat === 'tool').length;
             const seqCount = bioData.filter(item => item.cat === 'seq').length;
             const protCount = bioData.filter(item => item.cat === 'prot').length;
+            const protpredCount = bioData.filter(item => item.cat === 'protpred').length;
             const litCount = bioData.filter(item => item.cat === 'lit').length;
             const plotCount = bioData.filter(item => item.cat === 'plot').length;
 
@@ -673,6 +763,7 @@
             document.getElementById('tool-count').textContent = toolCount;
             document.getElementById('seq-count').textContent = seqCount;
             document.getElementById('prot-count').textContent = protCount;
+            document.getElementById('protpred-count').textContent = protpredCount;
             document.getElementById('lit-count').textContent = litCount;
             document.getElementById('plot-count').textContent = plotCount;
         }
@@ -686,7 +777,7 @@
                         <div class="card-tag">${item.tag}</div>
                         <div class="card-title">${item.title}</div>
                         <div class="card-desc">${item.desc}</div>
-                        <a href="${item.url}" target="_blank" class="card-link">💾 下载/查看</a>
+                        <a href="${item.url}" target="_blank" class="card-link">下载/查看</a>
                     </div>
                 `;
             });
@@ -701,7 +792,7 @@
                         <div class="card-tag">REGION: ${item.region}</div>
                         <div class="card-title">${item.title}</div>
                         <div class="card-desc">${item.desc}</div>
-                        <a href="${item.url}" target="_blank" class="download-btn">📥 下载${item.region}包 (JianGuoYun)</a>
+                        <a href="${item.url}" target="_blank" class="download-btn">下载${item.region}包 (JianGuoYun)</a>
                     </div>
                 `;
             });
@@ -721,6 +812,52 @@
             });
         }
 
+        // --- 网课平台渲染函数 ---
+        function renderCoursePlatforms(filter) {
+            const container = document.getElementById('course-grid');
+            container.innerHTML = '';
+            coursePlatformData.forEach(item => {
+                if (filter === 'all' || item.cat === filter) {
+                    container.innerHTML += `
+                        <div class="math-card" style="border-top: 3px solid ${item.color};">
+                            <div class="card-tag" style="color:${item.color}; border-color:${item.color}">${getCourseCategoryName(item.cat)}</div>
+                            <div class="card-title">${item.name}</div>
+                            <div class="card-desc">${item.desc}</div>
+                            <a href="${item.url}" target="_blank" class="card-link" style="color:${item.color}">START LEARNING <span>→</span></a>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function updateCourseStats() {
+            const totalPlatforms = coursePlatformData.length;
+            const moocCount = coursePlatformData.filter(item => item.cat === 'mooc').length;
+            const freeCount = coursePlatformData.filter(item => item.cat === 'free').length;
+            const skillCount = coursePlatformData.filter(item => item.cat === 'skill').length;
+            const techCount = coursePlatformData.filter(item => item.cat === 'tech').length;
+            const universityCount = coursePlatformData.filter(item => item.cat === 'university').length;
+
+            document.getElementById('total-platforms').textContent = totalPlatforms;
+            document.getElementById('mooc-count').textContent = moocCount;
+            document.getElementById('free-count').textContent = freeCount;
+            document.getElementById('skill-count').textContent = skillCount;
+            document.getElementById('tech-count').textContent = techCount;
+            document.getElementById('university-count').textContent = universityCount;
+        }
+
+        function getCourseCategoryName(cat) {
+            const categoryMap = {
+                'mooc': 'MOOC',
+                'free': 'FREE',
+                'skill': 'SKILL',
+                'creative': 'CREATIVE',
+                'tech': 'TECH',
+                'university': 'UNIVERSITY'
+            };
+            return categoryMap[cat] || cat.toUpperCase();
+        }
+
         // --- 页面切换 ---
         window.switchTab = (tabId) => {
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -734,7 +871,11 @@
                 updateStats();
             }
             if (tabId === 'courses') renderCourses();
-            if (tabId === 'global') renderGlobal();
+            if (tabId === 'global') {
+                renderGlobal();
+                renderCoursePlatforms('all');
+                updateCourseStats();
+            }
             if (tabId === 'ngo') renderNgo();
         }
 
@@ -743,6 +884,12 @@
             document.querySelectorAll('#bio-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             renderBio(cat);
+        }
+
+        window.filterCourse = (cat) => {
+            document.querySelectorAll('#course-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCoursePlatforms(cat);
         }
 
         // --- 背景动画 ---
@@ -911,6 +1058,8 @@
         updateStats();
         renderCourses();
         renderGlobal();
+        renderCoursePlatforms('all');
+        updateCourseStats();
         renderNgo();
     </script>
 </body>
