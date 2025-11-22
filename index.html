@@ -459,15 +459,29 @@
         <section id="bioinfo">
             <div class="section-header">
                 <h2>BIOINFORMATICS TOOLKIT</h2>
-                <p>基于社区整理的完整工具链</p>
+                <p>基于社区整理的完整工具链 | 持续扩展</p>
             </div>
+            
+            <!-- 统计面板 -->
+            <div class="stats-dashboard" id="bio-stats">
+                <div class="stat-item"><div class="stat-num" id="total-tools">0</div><div class="stat-label">Total Tools</div></div>
+                <div class="stat-item"><div class="stat-num" id="db-count">0</div><div class="stat-label">Database</div></div>
+                <div class="stat-item"><div class="stat-num" id="tool-count">0</div><div class="stat-label">Tools</div></div>
+                <div class="stat-item"><div class="stat-num" id="seq-count">0</div><div class="stat-label">Sequence</div></div>
+                <div class="stat-item"><div class="stat-num" id="prot-count">0</div><div class="stat-label">Protein</div></div>
+                <div class="stat-item"><div class="stat-num" id="lit-count">0</div><div class="stat-label">Literature</div></div>
+                <div class="stat-item"><div class="stat-num" id="plot-count">0</div><div class="stat-label">Plotting</div></div>
+            </div>
+            
             <div class="filter-bar" id="bio-filters">
                 <button class="filter-btn active" onclick="filterBio('all')">ALL</button>
                 <button class="filter-btn" onclick="filterBio('db')">数据库 (Database)</button>
                 <button class="filter-btn" onclick="filterBio('tool')">常用工具 (Tools)</button>
                 <button class="filter-btn" onclick="filterBio('seq')">序列分析 (Sequence)</button>
                 <button class="filter-btn" onclick="filterBio('prot')">蛋白质分析 (Protein)</button>
+                <button class="filter-btn" onclick="filterBio('protpred')">蛋白质结构预测 (Structure Prediction)</button>
                 <button class="filter-btn" onclick="filterBio('lit')">文献检索 (Literature)</button>
+                <button class="filter-btn" onclick="filterBio('plot')">科研绘图 (Scientific Plotting)</button>
             </div>
             <div class="data-grid" id="bio-grid"></div>
         </section>
@@ -523,6 +537,7 @@
     <script>
         // --- 数据源 ---
         const bioData = [
+            // 数据库 (Database)
             { cat: 'db', name: 'NCBI', url: 'https://www.ncbi.nlm.nih.gov/ ', desc: '涵盖基因、蛋白质等多种生物信息数据库 ' },
             { cat: 'db', name: 'EMBL-EBI', url: 'https://www.ebi.ac.uk/ ', desc: '欧洲重要的生物信息数据库与分析工具 ' },
             { cat: 'db', name: 'GeneCards', url: 'https://www.genecards.org/ ', desc: '专注于基因功能、表达的整合数据库 ' },
@@ -530,27 +545,71 @@
             { cat: 'db', name: 'KEGG', url: 'https://www.genome.jp/kegg/pathway.html ', desc: '主要用于信号通路分析 ' },
             { cat: 'db', name: 'UCSC', url: 'https://genome.ucsc.edu/index.html ', desc: '基因组浏览器，查看和分析基因组数据 ' },
             { cat: 'db', name: 'Ensembl', url: 'https://asia.ensembl.org/index.html ', desc: '提供基因组注释、序列等信息 ' },
+            { cat: 'db', name: 'InterPro', url: 'https://www.ebi.ac.uk/interpro/ ', desc: '综合性蛋白质功能分析数据库，整合多个权威数据库 ' },
+            { cat: 'db', name: 'Phytozome', url: 'https://phytozome-next.jgi.doe.gov/ ', desc: '植物基因组学门户网站，提供植物基因组数据 ' },
+            { cat: 'db', name: 'wwPDB', url: 'http://www.wwpdb.org/ ', desc: '全球蛋白质数据库，存储蛋白质三维结构数据 ' },
+            { cat: 'db', name: 'PDBj', url: 'https://pdbj.org/?lang=zh-CN ', desc: '亚洲和大洋洲区域的蛋白质结构数据中心 ' },
+            { cat: 'db', name: 'CYPED', url: 'https://ngdc.cncb.ac.cn/databasecommons/database/id/3263 ', desc: '细胞色素P450专题数据库 ' },
+            { cat: 'db', name: 'CNCB', url: 'https://www.cncb.ac.cn/tools ', desc: '中国国家生物信息中心在线计算和分析工具平台 ' },
+            { cat: 'db', name: 'Open Library of Bioscience', url: 'https://ngdc.cncb.ac.cn/openlb/home ', desc: '生命科学开放文库，开放获取资源库 ' },
+            { cat: 'db', name: '百迈客生物云', url: 'http://www.biomarker.com.cn/biocloud/jiyinshujuku ', desc: '生物基因数据库与分析工具平台 ' },
+            { cat: 'db', name: 'Figshare', url: 'https://figshare.com/ ', desc: '通用在线数字存储库，科研数据分享平台 ' },
+            
+            // 常用工具 (Tools)
             { cat: 'tool', name: 'Softberry', url: 'http://www.softberry.com/ ', desc: '包含多种生物信息分析工具 ' },
             { cat: 'tool', name: 'Genscript Tools', url: 'https://www.genscript.com/tools.html ', desc: '引物设计、稀有密码子分析等实用工具 ' },
             { cat: 'tool', name: 'Expasy', url: 'https://www.expasy.org/ ', desc: '瑞士生信研究所平台，丰富的蛋白质分析工具 ' },
             { cat: 'tool', name: 'DTU Health Tech', url: 'https://services.healthtech.dtu.dk/ ', desc: '丹麦技术大学提供的生信工具平台 ' },
             { cat: 'tool', name: 'OBRC', url: 'https://www.hsls.pitt.edu/obrc/ ', desc: '匹兹堡大学健康科学图书馆工具中心 ' },
             { cat: 'tool', name: 'CCB (JHU)', url: 'https://ccb.jhu.edu/software.shtml ', desc: '约翰·霍普金斯大学计算生物学中心工具 ' },
+            { cat: 'tool', name: 'PDBePISA', url: 'https://www.ebi.ac.uk/pdbe/pisa/ ', desc: '蛋白相互作用分析和稳定组装体预测工具 ' },
+            { cat: 'tool', name: 'New PLACE', url: 'https://www.dna.affrc.go.jp/PLACE/?action=newplace ', desc: '植物顺式作用调控元件数据库 ' },
+            { cat: 'tool', name: 'SMART', url: 'https://smart.embl.de/ ', desc: '保守结构域比较和蛋白质模块化分析工具 ' },
+            { cat: 'tool', name: 'STRING', url: 'https://cn.string-db.org/ ', desc: '蛋白质相互作用数据库和网络分析工具 ' },
+            { cat: 'tool', name: 'T-COFFEE', url: 'https://tcoffee.crg.eu/ ', desc: '多序列比对程序，准确性优于传统方法 ' },
+            
+            // 序列分析 (Sequence)
             { cat: 'seq', name: 'Genscan', url: '#', desc: '用于基因组外显子序列分析 ' },
             { cat: 'seq', name: 'FGENESH', url: '#', desc: '预测基因外显子结构 ' },
             { cat: 'seq', name: 'BLAST', url: 'https://blast.ncbi.nlm.nih.gov/ ', desc: '核酸或蛋白质序列比对工具 ' },
             { cat: 'seq', name: 'Primer-BLAST', url: 'https://www.ncbi.nlm.nih.gov/tools/primer-blast/ ', desc: '引物设计工具，提高特异性 ' },
             { cat: 'seq', name: 'CpG Finder', url: '#', desc: '查找和预测CpG位点 ' },
             { cat: 'seq', name: 'BioGPS', url: 'http://biogps.org/ ', desc: '查询基因表达谱 ' },
+            
+            // 蛋白质分析 (Protein)
             { cat: 'prot', name: 'ProtParam', url: 'https://web.expasy.org/protparam/ ', desc: '分析蛋白质分子量、等电点等理化性质 ' },
             { cat: 'prot', name: 'PSORTb', url: 'https://www.psort.org/psortb/ ', desc: '原核生物亚细胞定位预测 ' },
             { cat: 'prot', name: 'SignalP 5.0', url: 'https://services.healthtech.dtu.dk/service.php?SignalP-5.0 ', desc: '预测蛋白质信号肽 ' },
             { cat: 'prot', name: 'SOPMA', url: 'https://npsa-prabi.ibcp.fr/NPSA/npsa_sopma.html ', desc: '蛋白质二级结构预测 ' },
             { cat: 'prot', name: 'TMHMM', url: 'https://services.healthtech.dtu.dk/service.php?TMHMM-2.0 ', desc: '蛋白质跨膜区分析 ' },
             { cat: 'prot', name: 'CD-search', url: 'https://www.ncbi.nlm.nih.gov/Structure/cdd/wrpsb.cgi ', desc: '查找蛋白质保守结构域 ' },
+            
+            // 蛋白质结构预测 (Structure Prediction)
+            { cat: 'protpred', name: 'PROTREK', url: 'http://www.search-protrek.com/ ', desc: '蛋白质结构预测元服务器，整合多个预测工具 ' },
+            { cat: 'protpred', name: 'Boltz2', url: 'https://build.nvidia.com/mit/boltz2 ', desc: '基于扩散模型的蛋白质结构生成工具 ' },
+            { cat: 'protpred', name: 'I-TASSER', url: 'https://www.aideepmed.com/I-TASSER/ ', desc: '蛋白质结构和功能预测服务器，CASP竞赛优胜者 ' },
+            { cat: 'protpred', name: 'SWISS-MODEL', url: 'https://swissmodel.expasy.org/ ', desc: '同源建模自动化服务器 ' },
+            { cat: 'protpred', name: 'AlphaFold', url: 'https://deepmind.google/technologies/alphafold/alphafold-server/ ', desc: '革命性蛋白质结构预测工具 ' },
+            { cat: 'protpred', name: 'PSIPRED', url: 'http://bioinf.cs.ucl.ac.uk/psipred/ ', desc: '蛋白质二级结构预测工具 ' },
+            { cat: 'protpred', name: 'ModFOLD', url: 'https://www.reading.ac.uk/bioinf/ModFOLD/ ', desc: '蛋白质三维模型质量评估服务器 ' },
+            { cat: 'protpred', name: 'Robetta', url: 'https://robetta.bakerlab.org/ ', desc: 'David Baker实验室的蛋白质结构预测服务器 ' },
+            
+            // 文献检索 (Literature)
             { cat: 'lit', name: 'PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/ ', desc: '生物医学文献检索 ' },
             { cat: 'lit', name: 'Web of Science', url: 'https://www.webofscience.com/ ', desc: '国际权威学术文献索引 ' },
-            { cat: 'lit', name: 'CNKI', url: 'https://www.cnki.net/ ', desc: '中国知网 - 中文文献数据库 ' }
+            { cat: 'lit', name: 'CNKI', url: 'https://www.cnki.net/ ', desc: '中国知网 - 中文文献数据库 ' },
+            { cat: 'lit', name: 'CARSI', url: 'https://ds.carsi.edu.cn/resource/resource.php ', desc: '教育网联邦认证与资源共享基础设施 ' },
+            { cat: 'lit', name: 'PubScholar', url: 'https://pubscholar.cn/ ', desc: '公益学术平台，免费开放文献检索 ' },
+            { cat: 'lit', name: 'PubPeer', url: 'https://pubpeer.com/login ', desc: '发表后同行评议平台 ' },
+            { cat: 'lit', name: 'AMiner', url: 'https://www.aminer.cn/ ', desc: 'AI赋能科技情报挖掘和分析平台 ' },
+            
+            // 科研绘图 (Scientific Plotting)
+            { cat: 'plot', name: 'Servier Medical Art', url: 'https://smart.servier.com/ ', desc: '免费的医学和科学插图素材库 ' },
+            { cat: 'plot', name: 'BioRender', url: 'https://www.biorender.com/ ', desc: '强大的在线科学绘图平台 ' },
+            { cat: 'plot', name: 'IAN Symbol Library', url: 'https://ian.umces.edu/media-library/symbols/ ', desc: '生态学和海洋科学矢量符号库 ' },
+            { cat: 'plot', name: 'ImageGP', url: 'https://www.bic.ac.cn/ImageGP/index.php/Home/Index/PCAPlot.html ', desc: '生物信息学数据可视化绘图工具 ' },
+            { cat: 'plot', name: 'Inkscape', url: 'https://inkscape.org/ ', desc: '功能强大的免费开源矢量图形编辑器 ' },
+            { cat: 'plot', name: 'Markmap', url: 'https://markmap.js.org/ ', desc: 'Markdown转交互式思维导图工具 ' }
         ];
 
         const coursesData = [
@@ -598,6 +657,24 @@
                     `;
                 }
             });
+        }
+
+        function updateStats() {
+            const totalTools = bioData.length;
+            const dbCount = bioData.filter(item => item.cat === 'db').length;
+            const toolCount = bioData.filter(item => item.cat === 'tool').length;
+            const seqCount = bioData.filter(item => item.cat === 'seq').length;
+            const protCount = bioData.filter(item => item.cat === 'prot').length;
+            const litCount = bioData.filter(item => item.cat === 'lit').length;
+            const plotCount = bioData.filter(item => item.cat === 'plot').length;
+
+            document.getElementById('total-tools').textContent = totalTools;
+            document.getElementById('db-count').textContent = dbCount;
+            document.getElementById('tool-count').textContent = toolCount;
+            document.getElementById('seq-count').textContent = seqCount;
+            document.getElementById('prot-count').textContent = protCount;
+            document.getElementById('lit-count').textContent = litCount;
+            document.getElementById('plot-count').textContent = plotCount;
         }
 
         function renderCourses() {
@@ -652,7 +729,10 @@
             document.getElementById(tabId).classList.add('active');
             window.scrollTo(0, 0);
             
-            if (tabId === 'bioinfo') renderBio('all');
+            if (tabId === 'bioinfo') {
+                renderBio('all');
+                updateStats();
+            }
             if (tabId === 'courses') renderCourses();
             if (tabId === 'global') renderGlobal();
             if (tabId === 'ngo') renderNgo();
@@ -828,6 +908,7 @@
 
         // --- 初始化渲染 ---
         renderBio('all');
+        updateStats();
         renderCourses();
         renderGlobal();
         renderNgo();
