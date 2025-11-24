@@ -1,3 +1,4 @@
+	
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -1098,14 +1099,14 @@
 
             // 3. 关键：叠加亮光层，使擦除区域更明亮
             ctxFog.globalCompositeOperation = 'screen'; // 使用screen混合模式提亮
-            const lightGradient = ctxFog.createRadialGradient(x, y, 0, x, y, 250);
-            lightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.15)'); // 中心半透明白色
-            lightGradient.addColorStop(0.5, 'rgba(255, 200, 100, 0.08)');
-            lightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            const lightGradient = ctxFog.createRadialGradient(x, y, 0, x, y, 100);
+            lightGradient.addColorStop(0, 'rgba(100, 200, 255, 0.2)'); // 中心蓝色亮光
+            lightGradient.addColorStop(0.6, 'rgba(100, 200, 255, 0.08)');
+            lightGradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
             
             ctxFog.fillStyle = lightGradient;
             ctxFog.beginPath();
-            ctxFog.arc(x, y, 250, 0, Math.PI * 2);
+            ctxFog.arc(x, y, 100, 0, Math.PI * 2);
             ctxFog.fill();
             
             ctxFog.globalCompositeOperation = 'source-over'; // 恢复默认
@@ -1126,22 +1127,22 @@
             cursorCore.style.top = y + 'px';
             
             ctxFog.globalCompositeOperation = 'destination-out';
-            const gradient = ctxFog.createRadialGradient(x, y, 0, x, y, 250);
+            const gradient = ctxFog.createRadialGradient(x, y, 0, x, y, 80);
             gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
             gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
             ctxFog.fillStyle = gradient;
             ctxFog.beginPath();
-            ctxFog.arc(x, y, 250, 0, Math.PI * 2);
+            ctxFog.arc(x, y, 80, 0, Math.PI * 2);
             ctxFog.fill();
 
             // 触摸时也增亮
             ctxFog.globalCompositeOperation = 'screen';
-            const lightGradient = ctxFog.createRadialGradient(x, y, 0, x, y, 200);
-            lightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
-            lightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            const lightGradient = ctxFog.createRadialGradient(x, y, 0, x, y, 80);
+            lightGradient.addColorStop(0, 'rgba(100, 200, 255, 0.15)');
+            lightGradient.addColorStop(1, 'rgba(100, 200, 255, 0)');
             ctxFog.fillStyle = lightGradient;
             ctxFog.beginPath();
-            ctxFog.arc(x, y, 200, 0, Math.PI * 2);
+            ctxFog.arc(x, y, 80, 0, Math.PI * 2);
             ctxFog.fill();
             ctxFog.globalCompositeOperation = 'source-over';
         });
