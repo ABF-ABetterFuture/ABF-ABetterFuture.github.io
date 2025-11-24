@@ -490,9 +490,39 @@
         <section id="courses">
             <div class="section-header">
                 <h2>ACADEMIC ARCHIVE</h2>
-                <p>核心课程笔记与思维导图 | 持续更新</p>
+                <p>笔记资料与网课资源汇总 | 持续更新</p>
             </div>
-            <div class="data-grid" id="courses-grid"></div>
+            
+            <!-- 课程统计面板 -->
+            <div class="stats-dashboard" id="course-resource-stats">
+                <div class="stat-item"><div class="stat-num" id="total-notes">0</div><div class="stat-label">笔记资料</div></div>
+                <div class="stat-item"><div class="stat-num" id="total-videos">0</div><div class="stat-label">网课资源</div></div>
+                <div class="stat-item"><div class="stat-num" id="total-biology">0</div><div class="stat-label">生物类</div></div>
+                <div class="stat-item"><div class="stat-num" id="total-physics">0</div><div class="stat-label">物理类</div></div>
+                <div class="stat-item"><div class="stat-num" id="b-count">0</div><div class="stat-label">B站资源</div></div>
+                <div class="stat-item"><div class="stat-num" id="other-count">0</div><div class="stat-label">其他平台</div></div>
+            </div>
+
+            <!-- 笔记资料区域 -->
+            <div class="region-group">
+                <h3 class="region-title">笔记资料 (PDF)</h3>
+                <p style="color:var(--text-muted); margin-bottom:30px; font-size:0.9rem;">核心课程笔记与思维导图，系统性知识梳理，适合系统性学习和考前复习。</p>
+                <div class="data-grid" id="notes-grid"></div>
+            </div>
+            
+            <!-- 网课资源区域 -->
+            <div class="region-group">
+                <h3 class="region-title">网课资源 (在线视频)</h3>
+                <p style="color:var(--text-muted); margin-bottom:30px; font-size:0.9rem;">精选优质视频课程，涵盖生物、物理等核心学科，来自各大高校知名教授。</p>
+                <div class="filter-bar" id="video-filters">
+                    <button class="filter-btn active" onclick="filterVideo('all')">全部</button>
+                    <button class="filter-btn" onclick="filterVideo('bio')">生物学</button>
+                    <button class="filter-btn" onclick="filterVideo('physics')">物理学</button>
+                    <button class="filter-btn" onclick="filterVideo('b站')">B站</button>
+                    <button class="filter-btn" onclick="filterVideo('其他')">其他平台</button>
+                </div>
+                <div class="data-grid" id="videos-grid"></div>
+            </div>
         </section>
 
         <section id="global">
@@ -672,15 +702,51 @@
             { cat: 'plot', name: 'Markmap', url: 'https://markmap.js.org/ ', desc: 'Markdown转交互式思维导图工具 ' }
         ];
 
-        const coursesData = [
-            { tag: 'V2025-7-4', title: '分子生物学', desc: '涵盖核心概念与实验原理，包括DNA复制、转录、翻译等关键过程。', url: 'https://www.jianguoyun.com/p/Dc_9j2AQ8ITEDRiGiIkGIAA ' },
-            { tag: 'V2025-7-4', title: '进化生物学', desc: '自然选择、基因漂变与物种形成，系统梳理进化理论框架。', url: 'https://www.jianguoyun.com/p/DdUhX34Q8ITEDRinnIkGIAA ' },
-            { tag: 'V2025-7-4', title: '生态学 (思维导图)', desc: '系统性知识梳理与框架构建，可视化生态学核心概念。', url: 'https://www.jianguoyun.com/p/DW4a85YQ8ITEDRiknIkGIAA ' },
-            { tag: 'V2025-7-8', title: '生态学', desc: '生态系统结构与功能，种群与群落生态学基础。', url: 'https://www.jianguoyun.com/p/DeE-K6IQ8ITEDRjj44kGIAA ' },
-            { tag: 'V2025-7-8', title: '保护生物学', desc: '关注生物多样性与危机应对，探索保护策略与实践。', url: 'https://www.jianguoyun.com/p/DULGb5wQ8ITEDRij44kGIAA ' },
-            { tag: 'V2025-7-8', title: '生物统计学', desc: '数据分析基础与实验设计，包含习题集与案例分析。', url: 'https://www.jianguoyun.com/p/DZrn3ecQ8ITEDRj15IkGIAA ' },
-            { tag: 'V2025-7-17', title: '遗传学笔记', desc: '孟德尔遗传、连锁交换与基因作图，经典遗传学核心内容。', url: 'https://www.jianguoyun.com/p/DXQ-OOoQ8ITEDRin-4oGIAA ' },
-            { tag: 'V2025-7-17', title: '动物生物学名词解释', desc: '动物生物学核心术语与概念解析，适合考前复习。', url: 'https://www.jianguoyun.com/p/DYjyChEQ8ITEDRip-4oGIAA ' }
+        // 笔记资料数据
+        const notesData = [
+            { tag: 'V2025-7-4', subject: '生物', title: '分子生物学笔记', desc: '涵盖核心概念与实验原理，包括DNA复制、转录、翻译等关键过程。', url: 'https://www.jianguoyun.com/p/Dc_9j2AQ8ITEDRiGiIkGIAA ' },
+            { tag: 'V2025-7-4', subject: '生物', title: '进化生物学笔记', desc: '自然选择、基因漂变与物种形成，系统梳理进化理论框架。', url: 'https://www.jianguoyun.com/p/DdUhX34Q8ITEDRinnIkGIAA ' },
+            { tag: 'V2025-7-4', subject: '生物', title: '生态学思维导图', desc: '系统性知识梳理与框架构建，可视化生态学核心概念。', url: 'https://www.jianguoyun.com/p/DW4a85YQ8ITEDRiknIkGIAA ' },
+            { tag: 'V2025-7-8', subject: '生物', title: '生态学笔记', desc: '生态系统结构与功能，种群与群落生态学基础。', url: 'https://www.jianguoyun.com/p/DeE-K6IQ8ITEDRjj44kGIAA ' },
+            { tag: 'V2025-7-8', subject: '生物', title: '保护生物学笔记', desc: '关注生物多样性与危机应对，探索保护策略与实践。', url: 'https://www.jianguoyun.com/p/DULGb5wQ8ITEDRij44kGIAA ' },
+            { tag: 'V2025-7-8', subject: '生物', title: '生物统计学笔记', desc: '数据分析基础与实验设计，包含习题集与案例分析。', url: 'https://www.jianguoyun.com/p/DZrn3ecQ8ITEDRj15IkGIAA ' },
+            { tag: 'V2025-7-17', subject: '生物', title: '遗传学笔记', desc: '孟德尔遗传、连锁交换与基因作图，经典遗传学核心内容。', url: 'https://www.jianguoyun.com/p/DXQ-OOoQ8ITEDRin-4oGIAA ' },
+            { tag: 'V2025-7-17', subject: '生物', title: '动物生物学名词解释', desc: '动物生物学核心术语与概念解析，适合考前复习。', url: 'https://www.jianguoyun.com/p/DYjyChEQ8ITEDRip-4oGIAA ' }
+        ];
+
+        // 网课资源数据
+        const videosData = [
+            // 生物化学
+            { tag: 'BIOCHEM', subject: '生物', platform: 'B站', title: '生物化学 (杨荣武 - 南京大学)', desc: '爱课程版本，84集完整内容，涵盖蛋白质、酶、糖类、脂类、核酸等核心主题。', url: 'https://www.bilibili.com/video/BV1N7411N7BB/' },
+            { tag: 'BIOCHEM', subject: '生物', platform: 'B站', title: '生物化学考研全程课 (杨荣武 - 第四版)', desc: '2026届考研生物化学全程课，56讲系统复习版本，配套第三版&第四版教材。', url: 'https://www.bilibili.com/video/BV1dxwheVEhC/' },
+            { tag: 'BIOCHEM', subject: '生物', platform: 'B站', title: '生物化学原理教材带学 (杨荣武)', desc: '结合教材第四版，13讲精讲版本，氨基酸、蛋白质结构、酶学等核心知识点。', url: 'https://www.bilibili.com/video/BV1wPXGY5Eq5/' },
+            
+            // 分子生物学
+            { tag: 'MOLECULAR', subject: '生物', platform: 'B站', title: '分子生物学 (杨荣武 - 南京大学)', desc: '系统讲解基因概念、DNA复制、转录、翻译及表达调控机制，43集精华内容。', url: 'https://www.bilibili.com/video/BV1s4411P7RP/' },
+            { tag: 'MOLECULAR', subject: '生物', platform: 'B站', title: '生物化学与分子生物学 (杨广笑 - 华中科技大学)', desc: '全145讲高清重制版本，从基础概念到前沿应用，适合深度学习。', url: 'https://www.bilibili.com/video/BV1Q34y1f7V3/' },
+            { tag: 'MOLECULAR', subject: '生物', platform: '智慧树', title: '分子生物学 (智慧树平台)', desc: '智慧树优质课程，以生为本，以学定教，涵盖分子生物学核心内容。', url: 'https://coursehome.zhihuishu.com/courseHome/1000076564' },
+            
+            // 细胞生物学
+            { tag: 'CELL', subject: '生物', platform: 'B站', title: '细胞生物学 (邹方东 - 四川大学)', desc: '国家精品课程版本，90集内容详解细胞结构、功能和生命活动规律。', url: 'https://www.bilibili.com/video/BV1p7Gnz1E65/' },
+            { tag: 'CELL', subject: '生物', platform: 'B站', title: '细胞生物学精品课程逐集修正 (邹方东 - 四川大学)', desc: '逐集修复版本，确保内容完整性，适合系统学习细胞生物学。', url: 'https://www.bilibili.com/video/BV1ygz3YVE4q/' },
+            
+            // 植物生物学
+            { tag: 'BOTANY', subject: '生物', platform: 'B站', title: '植物分类学 (冯富娟 - 东北林业大学)', desc: '35集植物分类学课程，东北林业大学冯富娟教授主讲，涵盖植物分类基础理论。', url: 'https://www.bilibili.com/video/BV1Us411i7dY/' },
+            { tag: 'BOTANY', subject: '生物', platform: '智慧树', title: '植物学 (冯富娟 - 东北林业大学)', desc: '智慧树平台课程，为林学、园林、森林保护等专业本科生授课，1998年至今连续教学。', url: 'https://coursehome.zhihuishu.com/courseHome/1000008190' },
+            { tag: 'BOTANY', subject: '生物', platform: '超星', title: '植物学实习 (冯富娟 - 东北林业大学)', desc: '超星慕课平台，植物学野外实习课程，理论联系实际的重要环节。', url: 'https://mooc1.chaoxing.com/course/87939864.html' },
+            
+            // 动物生物学
+            { tag: 'ANIMAL', subject: '生物', platform: 'B站', title: '动物生物学 (厦门大学精品课)', desc: '36集精品课程，结合20年教学积累，系统介绍动物生物学基础知识与理论。', url: 'https://www.bilibili.com/video/av732056264/' },
+            
+            // 生理学
+            { tag: 'PHYSIOLOGY', subject: '生物', platform: 'B站', title: '动物生理学 (贺银成 - 医学考研)', desc: '2025考研西综版本，21集内容涵盖机体生理功能调节等核心知识点。', url: 'https://www.bilibili.com/video/BV1wMkfB3Eej/' },
+            
+            // 植物生理学
+            { tag: 'BOTANY-PHYSIOL', subject: '生物', platform: 'B站', title: '植物生理学 (郑彩霞 - 北京林业大学)', desc: '86集系统教学版本，从植物生命活动规律到逆境生理，适合林业相关专业。', url: 'https://www.bilibili.com/video/av8535162/' },
+            
+            // 物理学
+            { tag: 'PHYSICS', subject: '物理', platform: 'B站', title: '大学物理 (物理系的允文君)', desc: 'B站知名UP主，详细讲解大学物理知识点，包含光学、力学、电磁学等。', url: 'https://space.bilibili.com/52663683' },
+            { tag: 'Feynman', subject: '物理', platform: 'B站', title: '费曼物理学讲义笔记 (物理系的允文君)', desc: '经典教材配套笔记与讲解，帮助理解费曼物理学的深层思想。', url: 'https://www.bilibili.com/video/BV1xW411d7ok/' }
         ];
 
         const globalData = [
@@ -768,19 +834,59 @@
             document.getElementById('plot-count').textContent = plotCount;
         }
 
-        function renderCourses() {
-            const container = document.getElementById('courses-grid');
+        function renderNotes() {
+            const container = document.getElementById('notes-grid');
             container.innerHTML = '';
-            coursesData.forEach(item => {
+            notesData.forEach(item => {
                 container.innerHTML += `
                     <div class="math-card">
                         <div class="card-tag">${item.tag}</div>
                         <div class="card-title">${item.title}</div>
                         <div class="card-desc">${item.desc}</div>
-                        <a href="${item.url}" target="_blank" class="card-link">下载/查看</a>
+                        <a href="${item.url}" target="_blank" class="card-link">下载/查看 <span>→</span></a>
                     </div>
                 `;
             });
+        }
+
+        function renderVideos(filter = 'all') {
+            const container = document.getElementById('videos-grid');
+            container.innerHTML = '';
+            videosData.forEach(item => {
+                if (filter === 'all' || 
+                    (filter === 'bio' && item.subject === '生物') ||
+                    (filter === 'physics' && item.subject === '物理') ||
+                    (filter === 'b站' && item.platform === 'B站') ||
+                    (filter === '其他' && item.platform !== 'B站')) {
+                    container.innerHTML += `
+                        <div class="math-card">
+                            <div class="card-tag">${item.tag}</div>
+                            <div class="card-title">${item.title}</div>
+                            <div class="card-desc">${item.desc}</div>
+                            <a href="${item.url}" target="_blank" class="card-link">观看视频 <span>→</span></a>
+                        </div>
+                    `;
+                }
+            });
+            
+            // 更新视频统计
+            updateVideoStats();
+        }
+
+        function updateCourseStats() {
+            const totalNotes = notesData.length;
+            const totalVideos = videosData.length;
+            const bioCount = videosData.filter(item => item.subject === '生物').length;
+            const physicsCount = videosData.filter(item => item.subject === '物理').length;
+            const bCount = videosData.filter(item => item.platform === 'B站').length;
+            const otherCount = videosData.filter(item => item.platform !== 'B站').length;
+
+            document.getElementById('total-notes').textContent = totalNotes;
+            document.getElementById('total-videos').textContent = totalVideos;
+            document.getElementById('total-biology').textContent = bioCount;
+            document.getElementById('total-physics').textContent = physicsCount;
+            document.getElementById('b-count').textContent = bCount;
+            document.getElementById('other-count').textContent = otherCount;
         }
 
         function renderGlobal() {
@@ -830,7 +936,7 @@
             });
         }
 
-        function updateCourseStats() {
+        function updatePlatformStats() {
             const totalPlatforms = coursePlatformData.length;
             const moocCount = coursePlatformData.filter(item => item.cat === 'mooc').length;
             const freeCount = coursePlatformData.filter(item => item.cat === 'free').length;
@@ -870,11 +976,15 @@
                 renderBio('all');
                 updateStats();
             }
-            if (tabId === 'courses') renderCourses();
+            if (tabId === 'courses') {
+                renderNotes();
+                renderVideos();
+                updateCourseStats();
+            }
             if (tabId === 'global') {
                 renderGlobal();
                 renderCoursePlatforms('all');
-                updateCourseStats();
+                updatePlatformStats();
             }
             if (tabId === 'ngo') renderNgo();
         }
@@ -1053,14 +1163,54 @@
             setTimeout(() => particle.remove(), 1000);
         }
 
+        // 视频过滤功能
+        window.filterVideo = (cat) => {
+            document.querySelectorAll('#video-filters .filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderVideos(cat);
+        };
+
+        // 更新视频过滤统计
+        function updateVideoStats() {
+            const totalVideos = videosData.length;
+            const bioCount = videosData.filter(item => item.subject === '生物').length;
+            const physicsCount = videosData.filter(item => item.subject === '物理').length;
+            const bCount = videosData.filter(item => item.platform === 'B站').length;
+            const otherCount = videosData.filter(item => item.platform !== 'B站').length;
+
+            document.getElementById('total-videos').textContent = totalVideos;
+            document.getElementById('total-biology').textContent = bioCount;
+            document.getElementById('total-physics').textContent = physicsCount;
+            document.getElementById('b-count').textContent = bCount;
+            document.getElementById('other-count').textContent = otherCount;
+        }
+
         // --- 初始化渲染 ---
-        renderBio('all');
-        updateStats();
-        renderCourses();
-        renderGlobal();
-        renderCoursePlatforms('all');
-        updateCourseStats();
-        renderNgo();
+        document.addEventListener('DOMContentLoaded', function() {
+            renderBio('all');
+            updateStats();
+            renderNotes();
+            renderVideos();
+            updateCourseStats();
+            renderGlobal();
+            renderCoursePlatforms('all');
+            updatePlatformStats();
+            renderNgo();
+            
+            // 确保统计面板正确显示数据
+            setTimeout(() => {
+                updateCourseStats();
+                updatePlatformStats();
+                updateVideoStats();
+            }, 100);
+        });
+        
+        // 页面加载完成后额外确保统计显示
+        window.addEventListener('load', function() {
+            updateCourseStats();
+            updatePlatformStats();
+            updateVideoStats();
+        });
     </script>
 </body>
 </html>
